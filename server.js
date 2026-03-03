@@ -358,7 +358,8 @@ app.put('/api/config', (req,res) => {
 // ── QR ────────────────────────────────────────────────────────
 app.get('/api/qr/:table', async (req,res) => {
   const ip = req.query.ip || req.hostname;
-  const url = `http://${ip}:${PORT}/start?table=${req.params.table}`;
+  const BASE_URL = "https://sushi-akashi.onrender.com";
+const url = `${BASE_URL}/start?table=${req.params.table}`;
   const qr  = await QRCode.toDataURL(url,{width:300,margin:2,color:{dark:'#2c1810',light:'#ffffff'}});
   res.json({url,qr});
 });
