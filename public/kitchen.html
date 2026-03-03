@@ -1,0 +1,462 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <title>Kitchen Display · Sushi Akashi</title>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@400;700&family=Cormorant+Garamond:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+  <style>
+    :root{
+      --bg:#0f0c08; --surface:#1a1410; --surface2:#241e18;
+      --border:#2e2620; --border-bright:#3d3530;
+      --text:#f5f0e8; --text-muted:#8a7d72; --text-dim:#4a4038;
+      --gold:#c9a96e; --gold-dim:rgba(201,169,110,.15);
+      --blush:#d4877a; --blush-dim:rgba(212,135,122,.12);
+      --green:#4caf7d; --green-dim:rgba(76,175,125,.12);
+      --red:#e05252;
+    }
+    *{margin:0;padding:0;box-sizing:border-box;}
+    html,body{height:100%;overflow:hidden;}
+    body{font-family:'Cormorant Garamond','Noto Serif JP',serif;background:var(--bg);color:var(--text);display:flex;flex-direction:column;}
+
+    /* ── TOP BAR ── */
+    .topbar{
+      background:var(--surface);
+      border-bottom:1px solid var(--border);
+      padding:14px 20px;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      flex-shrink:0;
+    }
+    .tb-left{display:flex;align-items:center;gap:14px;}
+    .tb-logo{width:36px;height:36px;object-fit:contain;}
+    .tb-name{font-family:'Noto Serif JP',serif;font-size:18px;font-weight:700;color:var(--text);letter-spacing:2px;}
+    .tb-sub{font-size:11px;letter-spacing:3px;color:var(--text-muted);text-transform:uppercase;margin-top:1px;}
+    .tb-right{display:flex;align-items:center;gap:16px;}
+
+    .status-dot{width:9px;height:9px;border-radius:50%;background:var(--text-dim);display:inline-block;transition:background .3s;}
+    .status-dot.on{background:var(--green);box-shadow:0 0 8px var(--green);}
+    .status-label{font-size:12px;color:var(--text-muted);letter-spacing:.5px;display:flex;align-items:center;gap:6px;}
+
+    .tb-clock{font-size:13px;color:var(--text-muted);font-style:italic;}
+
+    .pending-count{
+      background:var(--blush-dim);
+      border:1px solid var(--blush);
+      color:var(--blush);
+      border-radius:20px;
+      padding:4px 14px;
+      font-size:13px;
+      font-weight:700;
+    }
+
+    /* ── MAIN GRID ── */
+    .main{flex:1;overflow-y:auto;padding:16px;display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:14px;align-content:start;}
+    .main::-webkit-scrollbar{width:4px;}
+    .main::-webkit-scrollbar-track{background:transparent;}
+    .main::-webkit-scrollbar-thumb{background:var(--border-bright);border-radius:2px;}
+
+    /* ── ORDER CARD ── */
+    .order-card{
+      background:var(--surface);
+      border:1px solid var(--border);
+      border-radius:16px;
+      overflow:hidden;
+      transition:all .3s;
+      position:relative;
+      display:flex;
+      flex-direction:column;
+    }
+    .order-card.new{
+      border-color:var(--blush);
+      box-shadow:0 0 0 3px var(--blush-dim), 0 8px 30px rgba(0,0,0,.4);
+      animation:slideIn .4s cubic-bezier(.34,1.3,.64,1);
+    }
+    .order-card.done{
+      border-color:var(--border);
+      opacity:.4;
+    }
+    @keyframes slideIn{0%{transform:translateY(-20px) scale(.97);opacity:0;}100%{transform:translateY(0) scale(1);opacity:1;}}
+
+    .card-header{
+      background:var(--surface2);
+      padding:12px 16px;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      border-bottom:1px solid var(--border);
+      flex-shrink:0;
+    }
+    .ch-left{display:flex;align-items:center;gap:12px;}
+    .card-table{font-family:'Noto Serif JP',serif;font-size:22px;font-weight:700;color:var(--gold);}
+    .card-id{font-size:11px;color:var(--text-dim);letter-spacing:1px;}
+    .card-time{font-size:12px;color:var(--text-muted);}
+
+    /* Timer */
+    .card-timer{
+      font-size:13px;
+      font-weight:700;
+      padding:3px 10px;
+      border-radius:20px;
+      background:var(--gold-dim);
+      color:var(--gold);
+    }
+    .card-timer.warn{background:rgba(224,82,82,.15);color:var(--red);}
+    .card-timer.ok{background:var(--green-dim);color:var(--green);}
+
+    .card-body{
+      padding:14px 16px;
+      overflow-y:auto;
+      max-height:360px;
+      flex:1;
+    }
+    .card-body::-webkit-scrollbar{width:4px;}
+    .card-body::-webkit-scrollbar-track{background:transparent;}
+    .card-body::-webkit-scrollbar-thumb{background:var(--border-bright);border-radius:2px;}
+    .order-item-row{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      padding:7px 0;
+      border-bottom:1px solid var(--border);
+    }
+    .order-item-row:last-child{border:none;}
+    .oir-left{display:flex;align-items:center;gap:10px;}
+    .oir-qty{
+      background:var(--blush);
+      color:white;
+      width:28px;height:28px;
+      border-radius:50%;
+      display:flex;align-items:center;justify-content:center;
+      font-size:13px;font-weight:700;
+      flex-shrink:0;
+    }
+    .oir-name{font-size:15px;font-weight:600;color:var(--text);}
+    .oir-jp{font-family:'Noto Serif JP',serif;font-size:11px;color:var(--text-muted);}
+    .oir-price{font-size:13px;color:var(--text-dim);}
+
+    .card-note{
+      background:rgba(201,169,110,.06);
+      border:1px solid rgba(201,169,110,.2);
+      border-radius:10px;
+      padding:8px 12px;
+      margin-top:10px;
+      font-size:13px;
+      font-style:italic;
+      color:var(--gold);
+    }
+    .card-note::before{content:'📝 ';}
+
+    .card-footer{
+      padding:12px 16px;
+      border-top:1px solid var(--border);
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      flex-shrink:0;
+    }
+    .cf-total{font-size:14px;color:var(--text-muted);font-style:italic;}
+    .cf-total strong{color:var(--text);font-style:normal;}
+
+    .btn-done{
+      background:var(--green);
+      color:white;
+      border:none;
+      border-radius:10px;
+      padding:10px 20px;
+      font-family:'Cormorant Garamond',serif;
+      font-size:15px;
+      font-weight:700;
+      cursor:pointer;
+      letter-spacing:.5px;
+      transition:opacity .15s, transform .1s;
+    }
+    .btn-done:active{opacity:.8;transform:scale(.97);}
+
+    /* ── EMPTY STATE ── */
+    .empty-state{
+      grid-column:1/-1;
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      justify-content:center;
+      padding:80px 20px;
+      color:var(--text-dim);
+      text-align:center;
+    }
+    .es-icon{font-size:56px;margin-bottom:16px;opacity:.4;}
+    .es-text{font-size:18px;font-style:italic;color:var(--text-muted);}
+    .es-sub{font-size:13px;margin-top:6px;}
+
+    /* ── ALERT OVERLAY ── */
+    .alert-overlay{
+      position:fixed;inset:0;
+      background:rgba(212,135,122,.15);
+      z-index:999;
+      display:none;
+      pointer-events:none;
+      animation:alertPulse .6s ease 3;
+    }
+    @keyframes alertPulse{0%,100%{opacity:0;}50%{opacity:1;}}
+
+    /* ── SOUND INDICATOR ── */
+    .sound-btn{
+      background:var(--surface2);
+      border:1px solid var(--border);
+      color:var(--text-muted);
+      border-radius:8px;
+      padding:6px 12px;
+      font-family:inherit;
+      font-size:12px;
+      cursor:pointer;
+      transition:all .2s;
+    }
+    .sound-btn.on{border-color:var(--gold);color:var(--gold);}
+
+    /* ── NEW ORDER BANNER ── */
+    .new-banner{
+      position:fixed;top:0;left:0;right:0;
+      background:var(--blush);
+      color:white;
+      text-align:center;
+      padding:14px;
+      font-size:18px;
+      font-weight:700;
+      letter-spacing:1px;
+      z-index:900;
+      transform:translateY(-100%);
+      transition:transform .3s;
+    }
+    .new-banner.show{transform:translateY(0);}
+  </style>
+</head>
+<body>
+
+<div class="alert-overlay" id="alertOverlay"></div>
+<div class="new-banner" id="newBanner">🍣 ĐƠN MỚI!</div>
+
+<div class="topbar">
+  <div class="tb-left">
+    <img src="/logo.png" alt="" class="tb-logo">
+    <div>
+      <div class="tb-name">鮨灯 Kitchen</div>
+      <div class="tb-sub">Kitchen Display</div>
+    </div>
+  </div>
+  <div class="tb-right">
+    <div class="status-label"><span class="status-dot" id="statusDot"></span><span id="statusText">Đang kết nối...</span></div>
+    <span class="pending-count" id="pendingCount">0 đang chờ</span>
+    <button class="sound-btn on" id="soundBtn" onclick="toggleSound()">🔔 Âm thanh</button>
+    <div class="tb-clock" id="clock"></div>
+  </div>
+</div>
+
+<div class="main" id="ordersGrid"></div>
+
+<!-- Hidden audio context trigger -->
+<button id="audioUnlock" style="position:fixed;inset:0;width:100%;height:100%;background:rgba(15,12,8,.95);color:white;font-size:24px;font-family:'Cormorant Garamond',serif;border:none;cursor:pointer;z-index:1000;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:16px;" onclick="unlockAudio()">
+  <span style="font-size:56px">🍣</span>
+  <span style="font-size:28px;font-weight:700;letter-spacing:2px;">鮨灯 Kitchen Display</span>
+  <span style="font-size:16px;opacity:.6;letter-spacing:1px;">Nhấn để bắt đầu nhận đơn</span>
+</button>
+
+<script>
+let soundEnabled = true;
+let audioCtx = null;
+let orders = {};
+let timers = {};
+let connected = false;
+
+// ── AUDIO ─────────────────────────────────────────────────────
+function unlockAudio() {
+  document.getElementById('audioUnlock').style.display = 'none';
+  audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  connectSSE();
+  // Play welcome chime
+  setTimeout(() => playChime('welcome'), 300);
+}
+
+function playChime(type) {
+  if (!audioCtx || !soundEnabled) return;
+  try {
+    if (type === 'welcome') {
+      playNote(523.25, 0.0, 0.15);  // C5
+      playNote(659.25, 0.15, 0.15); // E5
+      playNote(783.99, 0.30, 0.3);  // G5
+    } else if (type === 'new_order') {
+      // Urgent 3-bell chime
+      playNote(880, 0.0,  0.18, 0.7);
+      playNote(880, 0.22, 0.18, 0.7);
+      playNote(1047, 0.44, 0.35, 0.8);
+    } else if (type === 'done') {
+      playNote(440, 0.0, 0.2, 0.4);
+      playNote(523.25, 0.2, 0.3, 0.3);
+    }
+  } catch(e) {}
+}
+
+function playNote(freq, delay, duration, vol=0.5) {
+  const o = audioCtx.createOscillator();
+  const g = audioCtx.createGain();
+  o.connect(g); g.connect(audioCtx.destination);
+  o.type = 'sine';
+  o.frequency.value = freq;
+  const t = audioCtx.currentTime + delay;
+  g.gain.setValueAtTime(0, t);
+  g.gain.linearRampToValueAtTime(vol, t + 0.02);
+  g.gain.exponentialRampToValueAtTime(0.001, t + duration);
+  o.start(t); o.stop(t + duration + 0.05);
+}
+
+function toggleSound() {
+  soundEnabled = !soundEnabled;
+  const btn = document.getElementById('soundBtn');
+  btn.textContent = soundEnabled ? '🔔 Âm thanh' : '🔕 Tắt tiếng';
+  btn.className = 'sound-btn' + (soundEnabled ? ' on' : '');
+}
+
+// ── SSE ──────────────────────────────────────────────────────
+function connectSSE() {
+  const es = new EventSource('/api/events');
+
+  es.addEventListener('connected', () => {
+    connected = true;
+    setStatus(true);
+  });
+
+  es.addEventListener('new_order', e => {
+    const order = JSON.parse(e.data);
+    orders[order.id] = { ...order, status: 'pending', arrivedAt: Date.now() };
+    renderOrders();
+    alertNewOrder(order);
+  });
+
+  es.addEventListener('order_done', e => {
+    const { id } = JSON.parse(e.data);
+    if (orders[id]) { orders[id].status = 'done'; renderOrders(); playChime('done'); }
+  });
+
+  es.onerror = () => { connected = false; setStatus(false); setTimeout(connectSSE, 3000); };
+}
+
+function setStatus(on) {
+  document.getElementById('statusDot').className = 'status-dot' + (on ? ' on' : '');
+  document.getElementById('statusText').textContent = on ? 'Đang kết nối' : 'Mất kết nối...';
+}
+
+// ── ALERT ──────────────────────────────────────────────────────
+function alertNewOrder(order) {
+  playChime('new_order');
+
+  // Flash overlay
+  const ov = document.getElementById('alertOverlay');
+  ov.style.display = 'block';
+  setTimeout(() => ov.style.display = 'none', 2000);
+
+  // Banner
+  const banner = document.getElementById('newBanner');
+  banner.textContent = `🍣 ĐƠN MỚI — BÀN ${order.table}!`;
+  banner.classList.add('show');
+  setTimeout(() => banner.classList.remove('show'), 3000);
+
+  // Vibrate (mobile)
+  if (navigator.vibrate) navigator.vibrate([200, 100, 200, 100, 400]);
+}
+
+// ── RENDER ─────────────────────────────────────────────────────
+function renderOrders() {
+  const grid = document.getElementById('ordersGrid');
+
+  // Sort: pending first, then by arrived time (newest first)
+  const sorted = Object.values(orders).sort((a, b) => {
+    if (a.status !== b.status) return a.status === 'pending' ? -1 : 1;
+    return (b.arrivedAt || 0) - (a.arrivedAt || 0);
+  });
+
+  const pending = sorted.filter(o => o.status === 'pending').length;
+  document.getElementById('pendingCount').textContent = `${pending} đang chờ`;
+
+  if (!sorted.length) {
+    grid.innerHTML = `<div class="empty-state"><div class="es-icon">🍵</div><div class="es-text">Chưa có đơn hàng mới</div><div class="es-sub">Màn hình sẽ tự cập nhật khi có đơn</div></div>`;
+    return;
+  }
+
+  grid.innerHTML = sorted.map(order => {
+    const total = order.items.reduce((s, i) => s + i.price * i.qty, 0);
+    const timeStr = new Date(order.createdAt).toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' });
+    const isDone = order.status === 'done';
+    const elapsed = Math.floor((Date.now() - (order.arrivedAt || Date.now())) / 60000);
+    const timerClass = elapsed >= 15 ? 'warn' : elapsed >= 8 ? '' : 'ok';
+    const timerLabel = isDone ? '✅ Xong' : elapsed < 1 ? 'Vừa vào' : `${elapsed} phút`;
+
+    const itemsHTML = order.items.map(item => `
+      <div class="order-item-row">
+        <div class="oir-left">
+          <div class="oir-qty">${item.qty}</div>
+          <div>
+            <div class="oir-name">${item.name}</div>
+            ${item.name_jp ? `<div class="oir-jp">${item.name_jp}</div>` : ''}
+          </div>
+        </div>
+        <div class="oir-price">${(item.price * item.qty).toLocaleString('vi-VN')}đ</div>
+      </div>`).join('');
+
+    return `
+      <div class="order-card ${isDone ? 'done' : 'new'}" id="card-${order.id}">
+        <div class="card-header">
+          <div class="ch-left">
+            <div class="card-table">Bàn ${order.table}</div>
+            <div>
+              <div class="card-id">#${order.shortId}</div>
+              <div class="card-time">${timeStr}</div>
+            </div>
+          </div>
+          <div class="card-timer ${isDone ? 'ok' : timerClass}">${timerLabel}</div>
+        </div>
+        <div class="card-body">
+          ${itemsHTML}
+          ${order.note ? `<div class="card-note">${order.note}</div>` : ''}
+        </div>
+        <div class="card-footer">
+          <div class="cf-total">Tổng: <strong>${total.toLocaleString('vi-VN')}đ</strong></div>
+          ${!isDone ? `<button class="btn-done" onclick="markDone('${order.id}')">✅ Hoàn thành</button>` : '<span style="color:var(--green);font-size:14px">✅ Đã xong</span>'}
+        </div>
+      </div>`;
+  }).join('');
+
+  // Re-setup timers
+  Object.values(orders).forEach(o => {
+    if (o.status === 'pending') {
+      if (!timers[o.id]) {
+        timers[o.id] = setInterval(() => {
+          const card = document.getElementById(`card-${o.id}`);
+          if (!card) { clearInterval(timers[o.id]); delete timers[o.id]; return; }
+          const elapsed = Math.floor((Date.now() - (o.arrivedAt || Date.now())) / 60000);
+          const timerEl = card.querySelector('.card-timer');
+          if (timerEl) {
+            timerEl.textContent = elapsed < 1 ? 'Vừa vào' : `${elapsed} phút`;
+            timerEl.className = 'card-timer ' + (elapsed >= 15 ? 'warn' : elapsed >= 8 ? '' : 'ok');
+          }
+        }, 30000);
+      }
+    } else {
+      if (timers[o.id]) { clearInterval(timers[o.id]); delete timers[o.id]; }
+    }
+  });
+}
+
+async function markDone(id) {
+  await fetch(`/api/orders/${id}/status`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ status: 'done' }) });
+  if (orders[id]) { orders[id].status = 'done'; renderOrders(); playChime('done'); }
+}
+
+// Clock
+setInterval(() => {
+  document.getElementById('clock').textContent = new Date().toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+}, 1000);
+</script>
+</body>
+</html>

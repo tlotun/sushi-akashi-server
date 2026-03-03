@@ -1,0 +1,590 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Sushi Akashi — Order System v1.0</title>
+  <style>
+:root{
+  --gray:#c0c0c0;--gl:#dfdfdf;--gd:#808080;--gdd:#404040;
+  --white:#ffffff;--navy:#000080;--navy2:#1084d0;--teal:#008080;--text:#000;
+  --raised:inset -1px -1px 0 #808080,inset 1px 1px 0 #fff,inset -2px -2px 0 #404040,inset 2px 2px 0 #dfdfdf;
+  --sunken:inset 1px 1px 0 #808080,inset -1px -1px 0 #fff,inset 2px 2px 0 #404040,inset -2px -2px 0 #dfdfdf;
+  --bup:inset -1px -1px 0 #404040,inset 1px 1px 0 #fff,inset -2px -2px 0 #808080,inset 2px 2px 0 #dfdfdf;
+  --bdn:inset 1px 1px 0 #404040,inset -1px -1px 0 #fff,inset 2px 2px 0 #808080,inset -2px -2px 0 #dfdfdf;
+}
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+body{font-family:'Tahoma','MS Sans Serif','Arial',sans-serif;font-size:13px;background:var(--teal);color:var(--text);min-height:100vh;padding-bottom:116px;}
+.tb{background:linear-gradient(90deg,var(--navy),var(--navy2));height:26px;padding:0 6px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;}
+.tb-t{color:white;font-size:13px;font-weight:bold;display:flex;align-items:center;gap:6px;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;}
+.tb-bs{display:flex;gap:2px;flex-shrink:0;}
+.tb-b{width:20px;height:18px;background:var(--gray);box-shadow:var(--bup);border:none;cursor:pointer;font-size:11px;font-weight:bold;display:flex;align-items:center;justify-content:center;}
+.tb-b:active{box-shadow:var(--bdn);}
+.main-hdr{position:sticky;top:0;z-index:100;background:var(--gray);box-shadow:var(--raised);}
+.mb{background:var(--gray);border-bottom:1px solid var(--gd);display:flex;overflow-x:auto;scrollbar-width:none;}
+.mb::-webkit-scrollbar{display:none;}
+.mb-btn{flex-shrink:0;min-height:38px;padding:0 12px;background:transparent;border:none;font-family:inherit;font-size:12px;cursor:pointer;white-space:nowrap;display:flex;align-items:center;gap:5px;}
+.mb-btn:active{background:var(--navy);color:white;}
+.ab{background:var(--gray);border-bottom:1px solid var(--gd);padding:3px 7px;display:flex;align-items:center;gap:5px;}
+.ab-lbl{font-size:11px;font-weight:bold;flex-shrink:0;}
+.ab-field{flex:1;height:24px;min-width:0;background:white;box-shadow:var(--sunken);border:none;padding:2px 6px;font-family:inherit;font-size:11px;}
+.ab-go{flex-shrink:0;height:24px;padding:0 8px;background:var(--gray);box-shadow:var(--bup);border:none;font-family:inherit;font-size:11px;cursor:pointer;}
+.ab-go:active{box-shadow:var(--bdn);}
+.tbl-badge{flex-shrink:0;background:var(--navy);color:white;padding:3px 10px;font-size:11px;font-weight:bold;box-shadow:var(--raised);}
+/* TABS */
+.tabs-wrap{background:var(--gray);padding:4px 6px 0;position:sticky;top:122px;z-index:90;}
+.tabs-s{display:flex;overflow-x:auto;scrollbar-width:none;}
+.tabs-s::-webkit-scrollbar{display:none;}
+.tab-btn{flex-shrink:0;min-height:38px;padding:0 12px;background:var(--gray);border:1px solid var(--gd);border-bottom:none;font-family:inherit;font-size:12px;cursor:pointer;white-space:nowrap;position:relative;top:1px;display:flex;align-items:center;gap:4px;}
+.tab-btn.active{background:var(--white);font-weight:bold;z-index:2;border-bottom:1px solid var(--white);}
+.tabs-line{border-top:1px solid var(--gd);background:var(--white);}
+/* GROUP */
+.grp-hdr{background:#d4d0c8;box-shadow:var(--sunken);padding:6px 10px;margin:6px 6px 3px;font-size:13px;font-weight:bold;display:flex;align-items:center;gap:7px;}
+/* GRID */
+.menu-grid{display:grid;grid-template-columns:1fr 1fr;gap:5px;padding:0 5px 5px;}
+@media(max-width:360px){.menu-grid{grid-template-columns:1fr;}}
+/* CARD */
+.menu-card{background:var(--gray);box-shadow:var(--raised);overflow:hidden;}
+.menu-card.sel{background:#000080;color:white;}
+.menu-card.sel .c-name,.menu-card.sel .c-price{color:white;}
+.menu-card.sel .c-jp{color:#aac;}
+.menu-card.sel .c-desc{color:#99b;}
+.c-img{height:88px;overflow:hidden;background:#000;position:relative;border-bottom:1px solid var(--gd);cursor:pointer;}
+.c-img img{width:100%;height:100%;object-fit:cover;}
+.c-emoji{width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:42px;background:var(--white);}
+.badges{position:absolute;top:3px;left:3px;display:flex;flex-direction:column;gap:2px;z-index:2;}
+.badge{font-size:9px;padding:2px 5px;font-weight:bold;}
+.badge-hot{background:#cc0000;color:white;}
+.badge-chef{background:var(--navy);color:white;}
+.badge-signature{background:#800080;color:white;}
+.badge-bestseller{background:#006600;color:white;}
+.c-oos{position:absolute;inset:0;background:rgba(192,192,192,.85);display:flex;align-items:center;justify-content:center;z-index:3;}
+.c-oos span{font-size:11px;font-weight:bold;border:2px solid var(--gdd);padding:3px 8px;background:var(--gray);}
+.qty-bub{position:absolute;top:3px;right:3px;z-index:4;background:var(--navy);color:white;padding:1px 5px;font-size:10px;font-weight:bold;display:none;}
+.qty-bub.show{display:block;}
+.c-body{padding:6px 8px 3px;cursor:pointer;}
+.c-name{font-size:13px;font-weight:bold;line-height:1.4;margin-bottom:1px;}
+.c-jp{font-size:10px;color:#555;margin-bottom:2px;}
+.c-desc{font-size:11px;color:#444;line-height:1.5;margin-bottom:4px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;}
+.c-pcs-badge{font-size:10px;color:var(--navy);display:inline-flex;align-items:center;gap:3px;margin-bottom:3px;}
+.c-foot-wrap{padding:0 8px 8px;}
+.c-foot{display:flex;align-items:center;justify-content:space-between;gap:4px;}
+.c-price{font-size:13px;font-weight:bold;}
+.qty-ctrl{display:flex;align-items:center;gap:2px;}
+.qty-btn{width:32px;height:32px;background:var(--gray);box-shadow:var(--bup);border:none;font-size:16px;font-weight:bold;cursor:pointer;display:flex;align-items:center;justify-content:center;}
+.qty-btn:active{box-shadow:var(--bdn);}
+.qty-field{width:28px;height:32px;background:white;box-shadow:var(--sunken);border:none;text-align:center;font-family:inherit;font-size:13px;font-weight:bold;}
+.btn-choose{height:30px;padding:0 10px;background:var(--gray);box-shadow:var(--bup);border:none;font-family:inherit;font-size:11px;font-weight:bold;cursor:pointer;}
+.btn-choose:active{box-shadow:var(--bdn);}
+/* STATUS + TASKBAR */
+.status-bar{position:fixed;bottom:56px;left:0;right:0;z-index:200;background:var(--gray);box-shadow:var(--raised);padding:3px 5px;display:flex;align-items:center;gap:4px;}
+.sb-pane{background:var(--gray);box-shadow:var(--sunken);padding:2px 8px;font-size:11px;height:22px;display:flex;align-items:center;}
+.sb-pane.f1{flex:1;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;}
+.sb-cart{flex-shrink:0;height:28px;padding:0 10px;background:var(--gray);box-shadow:var(--bup);border:none;font-family:inherit;font-size:12px;font-weight:bold;cursor:pointer;}
+.sb-cart:active{box-shadow:var(--bdn);}
+.sb-cart.hidden{display:none;}
+.taskbar{position:fixed;bottom:0;left:0;right:0;z-index:300;height:56px;background:var(--gray);box-shadow:var(--raised);display:flex;align-items:center;padding:4px 6px;gap:4px;}
+.start-btn{height:44px;padding:0 12px;background:var(--gray);box-shadow:var(--bup);border:none;cursor:pointer;font-family:inherit;font-size:13px;font-weight:bold;display:flex;align-items:center;gap:5px;}
+.start-btn:active{box-shadow:var(--bdn);}
+.start-logo{width:20px;height:20px;object-fit:contain;}
+.tb-sep{width:1px;height:40px;background:var(--gd);margin:0 2px;}
+.tb-task{flex:1;max-width:180px;height:44px;background:var(--gray);box-shadow:var(--bdn);border:none;font-family:inherit;font-size:12px;font-weight:bold;display:flex;align-items:center;gap:5px;padding:0 8px;overflow:hidden;}
+.tb-clock{margin-left:auto;flex-shrink:0;background:var(--gray);box-shadow:var(--sunken);padding:2px 8px;font-size:12px;height:36px;display:flex;align-items:center;}
+/* DIALOGS */
+.dlg-overlay{position:fixed;inset:0;z-index:500;display:none;}
+.dlg-overlay.show{display:block;}
+.dlg-win{position:fixed;z-index:600;background:var(--gray);box-shadow:var(--raised),3px 3px 0 rgba(0,0,0,.4);width:calc(100vw - 12px);max-width:500px;left:50%;transform:translateX(-50%);max-height:82vh;display:flex;flex-direction:column;top:50%;margin-top:-180px;display:none;}
+.dlg-win.show{display:flex;}
+.dlg-body{background:white;box-shadow:var(--sunken);margin:4px;overflow-y:auto;flex:1;}
+.cart-row{display:flex;align-items:center;gap:7px;padding:8px;border-bottom:1px solid #e0e0e0;}
+.cart-row:nth-child(even){background:#f8f8f8;}
+.cr-icon{width:40px;height:40px;overflow:hidden;flex-shrink:0;border:1px solid var(--gd);background:white;display:flex;align-items:center;justify-content:center;font-size:20px;}
+.cr-icon img{width:100%;height:100%;object-fit:cover;}
+.cr-info{flex:1;min-width:0;}
+.cr-name{font-size:13px;font-weight:bold;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.cr-pcs{font-size:11px;color:var(--navy);font-weight:bold;}
+.cr-sub{font-size:11px;color:#666;}
+.cr-ctrl{display:flex;align-items:center;gap:2px;flex-shrink:0;}
+.cr-tot{font-size:13px;font-weight:bold;min-width:64px;text-align:right;flex-shrink:0;}
+.dlg-note{padding:5px 8px;border-top:1px solid var(--gd);flex-shrink:0;}
+.dlg-note label{font-size:12px;font-weight:bold;display:block;margin-bottom:3px;}
+.dlg-note textarea{width:100%;background:white;box-shadow:var(--sunken);border:none;padding:5px;font-family:inherit;font-size:12px;resize:none;min-height:52px;}
+.dlg-foot{padding:7px;border-top:1px solid var(--gd);display:flex;align-items:center;justify-content:space-between;flex-shrink:0;}
+.dlg-tot{font-size:13px;}
+.dlg-tot strong{font-size:15px;}
+.dlg-btns{display:flex;gap:4px;}
+.win-btn{height:40px;min-width:76px;padding:0 12px;background:var(--gray);box-shadow:var(--bup);border:none;font-family:inherit;font-size:12px;cursor:pointer;}
+.win-btn:active{box-shadow:var(--bdn);}
+.win-btn.primary{font-weight:bold;box-shadow:var(--bup),0 0 0 1px black;}
+/* HISTORY DIALOG */
+.hist-grp{padding:4px 8px;border-bottom:1px solid #e0e0e0;}
+.hist-hdr{font-size:11px;font-weight:bold;color:#444;background:#f0f0f0;padding:2px 5px;margin-bottom:3px;}
+.hist-row{display:flex;justify-content:space-between;padding:3px 5px;font-size:12px;}
+.hist-row:hover{background:var(--navy);color:white;}
+.hist-pcs{font-size:10px;color:var(--navy);}
+.hist-grand{padding:8px;font-size:14px;font-weight:bold;border-top:2px solid var(--gd);display:flex;justify-content:space-between;}
+.hist-empty{padding:36px;text-align:center;font-size:13px;color:#888;white-space:pre-line;}
+/* ITEM DETAIL / PCS POPUP (as Win95 dialog) */
+.itm-overlay{position:fixed;inset:0;z-index:700;display:none;}
+.itm-overlay.show{display:block;}
+.itm-win{position:fixed;z-index:800;background:var(--gray);box-shadow:var(--raised),4px 4px 0 rgba(0,0,0,.4);width:calc(100vw - 12px);max-width:440px;left:50%;top:50%;transform:translate(-50%,-50%);max-height:88vh;display:none;flex-direction:column;}
+.itm-win.show{display:flex;}
+.itm-img{height:150px;overflow:hidden;background:#000;border-bottom:1px solid var(--gd);flex-shrink:0;}
+.itm-img img{width:100%;height:100%;object-fit:cover;}
+.itm-emoji{width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:56px;background:white;}
+.itm-scroll{overflow-y:auto;flex:1;}
+.itm-body{padding:10px 12px 8px;}
+.itm-name{font-size:15px;font-weight:bold;margin-bottom:2px;}
+.itm-jp{font-size:11px;color:#666;margin-bottom:8px;}
+.itm-desc-lbl{font-size:11px;font-weight:bold;background:#f0f0f0;box-shadow:var(--sunken);padding:3px 8px;margin-bottom:5px;}
+.itm-desc{font-size:12px;line-height:1.7;padding:8px;background:white;box-shadow:var(--sunken);}
+/* PCS section */
+.pcs-group{background:var(--gray);box-shadow:var(--sunken);margin:8px 12px 0;padding:8px;}
+.pcs-group-lbl{font-size:11px;font-weight:bold;margin-bottom:6px;display:flex;align-items:center;gap:5px;}
+.pcs-opts{display:grid;grid-template-columns:repeat(auto-fill,minmax(80px,1fr));gap:5px;}
+.pcs-opt{padding:8px 5px;background:var(--gray);box-shadow:var(--bup);cursor:pointer;text-align:center;}
+.pcs-opt:active{box-shadow:var(--bdn);}
+.pcs-opt.selected{background:var(--navy);color:white;box-shadow:var(--bdn);}
+.pcs-opt.selected .pcs-opt-lbl{color:#aac;}
+.pcs-opt.selected .pcs-opt-price{color:#ffd700;}
+.pcs-opt-qty{font-size:15px;font-weight:bold;}
+.pcs-opt-lbl{font-size:9px;color:#666;margin:1px 0;}
+.pcs-opt-price{font-size:11px;font-weight:bold;}
+.itm-foot{padding:8px 12px 10px;border-top:1px solid var(--gd);display:flex;align-items:center;justify-content:space-between;gap:6px;flex-shrink:0;}
+.itm-price{font-size:16px;font-weight:bold;}
+.itm-price-sub{font-size:10px;color:#666;}
+.itm-actions{display:flex;align-items:center;gap:6px;flex-shrink:0;}
+.itm-qty-ctrl{display:flex;align-items:center;gap:3px;}
+.itm-qty-num{width:28px;height:32px;background:white;box-shadow:var(--sunken);border:none;text-align:center;font-family:inherit;font-size:14px;font-weight:bold;display:flex;align-items:center;justify-content:center;}
+.itm-add-btn{height:40px;padding:0 14px;background:var(--gray);box-shadow:var(--bup);border:none;font-family:inherit;font-size:12px;font-weight:bold;cursor:pointer;white-space:nowrap;}
+.itm-add-btn:active{box-shadow:var(--bdn);}
+.itm-add-btn:disabled{color:var(--gd);cursor:not-allowed;}
+/* MESSAGE BOX */
+.msg-overlay{position:fixed;inset:0;z-index:900;display:none;}
+.msg-overlay.show{display:block;}
+.msg-box{position:fixed;z-index:1000;background:var(--gray);box-shadow:var(--raised),3px 3px 0 rgba(0,0,0,.4);width:calc(100vw - 40px);max-width:320px;left:50%;top:50%;transform:translate(-50%,-50%);}
+.msg-body{padding:15px;display:flex;gap:12px;align-items:flex-start;}
+.msg-icon{font-size:36px;flex-shrink:0;}
+.msg-text{font-size:12px;line-height:1.8;white-space:pre-line;}
+.msg-text strong{display:block;margin-bottom:4px;font-size:13px;}
+.msg-btns{padding:6px 15px 12px;display:flex;justify-content:center;gap:7px;}
+.prog-wrap{padding:0 15px 5px;}
+.prog-outer{height:14px;background:white;box-shadow:var(--sunken);overflow:hidden;}
+.prog-inner{height:100%;background:var(--navy);width:0;transition:width 1.5s linear;}
+.prog-inner.done{width:100%;}
+  </style>
+</head>
+<body>
+<div class="main-hdr">
+  <div class="tb">
+    <div class="tb-t">🍣 <span id="lbTitle">Sushi Akashi — Hệ Thống Đặt Món v1.0</span></div>
+    <div class="tb-bs"><button class="tb-b">_</button><button class="tb-b">□</button><button class="tb-b" onclick="alert('😄')">✕</button></div>
+  </div>
+  <div class="mb">
+    <button class="mb-btn" onclick="openHist()">📋 <span id="lbMbHist">Đã đặt</span></button>
+    <button class="mb-btn" onclick="openCart()">🛒 <span id="lbMbCart">Giỏ hàng</span></button>
+    <button class="mb-btn" onclick="fcat(null,'all')">🔄 <span id="lbMbAll">Tất cả</span></button>
+    <button class="mb-btn" onclick="showHelp()">❓ <span id="lbMbHelp">Trợ giúp</span></button>
+  </div>
+  <div class="ab">
+    <span class="ab-lbl" id="lbAddr">Địa chỉ:</span>
+    <input class="ab-field" id="addrField" readonly>
+    <button class="ab-go" onclick="window.scrollTo({top:0})">⟳</button>
+    <div class="tbl-badge" id="tableChip">BÀN: ?</div>
+  </div>
+</div>
+<div class="tabs-wrap"><div class="tabs-s" id="tabsRow"></div><div class="tabs-line"></div></div>
+<div id="menuContainer"></div>
+
+<div class="status-bar">
+  <div class="sb-pane f1" id="sbMsg">Sẵn sàng</div>
+  <div class="sb-pane" id="sbQty">0 món</div>
+  <div class="sb-pane" id="sbTot">0đ</div>
+  <button class="sb-cart hidden" id="sbCartBtn" onclick="openCart()">🛒 <span id="lbSbCart">Giỏ & Đặt món</span></button>
+</div>
+<div class="taskbar">
+  <button class="start-btn"><img src="/logo.png" class="start-logo" alt=""><span>Start</span></button>
+  <div class="tb-sep"></div>
+  <div class="tb-task">🍣 <span id="lbTask">Đặt Món</span></div>
+  <div class="tb-clock" id="tbClock">00:00</div>
+</div>
+
+<!-- OVERLAYS -->
+<div class="dlg-overlay" id="dlgOverlay" onclick="closeDlgs()"></div>
+
+<!-- CART DIALOG -->
+<div class="dlg-win" id="cartDlg">
+  <div class="tb"><div class="tb-t">🛒 <span id="lbCartDlgTitle">Giỏ Hàng — Sushi Akashi</span></div><div class="tb-bs"><button class="tb-b" onclick="closeDlgs()">✕</button></div></div>
+  <div class="dlg-body" id="cartBody"></div>
+  <div class="dlg-note"><label id="lbNote">Ghi chú cho bếp:</label><textarea id="noteInput"></textarea></div>
+  <div class="dlg-foot">
+    <div class="dlg-tot"><span id="lbTotLbl">Tổng: </span><strong id="dlgTot">0đ</strong></div>
+    <div class="dlg-btns"><button class="win-btn" onclick="closeDlgs()" id="lbCancel">Huỷ</button><button class="win-btn primary" id="btnOrder" onclick="submitOrder()">Đặt Món Ngay</button></div>
+  </div>
+</div>
+
+<!-- HISTORY DIALOG -->
+<div class="dlg-win" id="histDlg">
+  <div class="tb"><div class="tb-t">📋 <span id="lbHistDlgTitle">Lịch Sử Đặt Món</span></div><div class="tb-bs"><button class="tb-b" onclick="closeDlgs()">✕</button></div></div>
+  <div class="dlg-body" id="histBody"></div>
+  <div class="dlg-foot"><div></div><button class="win-btn primary" onclick="closeDlgs()" id="lbClose">Đóng</button></div>
+</div>
+
+<!-- ITEM DETAIL / PCS POPUP (Win95 property dialog) -->
+<div class="itm-overlay" id="itmOverlay" onclick="closeItmBg(event)">
+  <div class="itm-win" id="itmWin">
+    <div class="tb"><div class="tb-t" id="itmTitle">Chi tiết món ăn</div><div class="tb-bs"><button class="tb-b" onclick="closeItm()">✕</button></div></div>
+    <div class="itm-img" id="itmImg"></div>
+    <div class="itm-scroll">
+      <div class="itm-body">
+        <div class="itm-name" id="itmName"></div>
+        <div class="itm-jp"   id="itmJp"></div>
+        <div class="itm-desc-lbl" id="lbItmDescLbl">Thành phần &amp; mô tả:</div>
+        <div class="itm-desc" id="itmDesc"></div>
+      </div>
+      <div class="pcs-group" id="pcsGroup" style="display:none">
+        <div class="pcs-group-lbl">⚖ <span id="lbPcsTitle">Chọn số miếng:</span></div>
+        <div class="pcs-opts" id="pcsOpts"></div>
+      </div>
+    </div>
+    <div class="itm-foot">
+      <div>
+        <div class="itm-price" id="itmPrice">0đ</div>
+        <div class="itm-price-sub" id="itmPriceSub"></div>
+      </div>
+      <div class="itm-actions">
+        <div class="itm-qty-ctrl">
+          <button class="qty-btn" onclick="popupCq(-1)" style="width:30px;height:30px;font-size:15px;">▼</button>
+          <div class="itm-qty-num" id="popupQtyNum">1</div>
+          <button class="qty-btn" onclick="popupCq(1)"  style="width:30px;height:30px;font-size:15px;">▲</button>
+        </div>
+        <button class="itm-add-btn" id="itmAddBtn" onclick="popupAddToCart()"><span id="lbAddBtn">Thêm vào giỏ</span></button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- MESSAGE BOX -->
+<div class="msg-overlay" id="msgOverlay">
+  <div class="msg-box">
+    <div class="tb"><div class="tb-t" id="msgTitle">ℹ️ Sushi Akashi</div><div class="tb-bs"><button class="tb-b" onclick="closeMsgBox()">✕</button></div></div>
+    <div class="msg-body"><div class="msg-icon" id="msgIcon">✅</div><div class="msg-text" id="msgText"></div></div>
+    <div class="prog-wrap" id="progWrap" style="display:none"><div class="prog-outer"><div class="prog-inner" id="progBar"></div></div></div>
+    <div class="msg-btns"><button class="win-btn primary" onclick="closeMsgBox()">OK</button></div>
+  </div>
+</div>
+
+<script>
+const P  = new URLSearchParams(location.search);
+const LANG = P.get('lang') || 'vi';
+const TBL  = P.get('table') || '?';
+
+const T = LANG==='en' ? {
+  title:'Sushi Akashi — Order System v1.0', tblLabel:t=>`TABLE: ${t}`,
+  addr:t=>`C:\\SushiAkashi\\Menu\\Table${t}\\`, addrLbl:'Address:',
+  mbHist:'History', mbCart:'Cart', mbAll:'All Items', mbHelp:'Help', task:'Order Menu',
+  all:'📁 All Items', cartDlg:'Shopping Cart — Sushi Akashi',
+  noteLbl:'Note to chef:', notePH:'No spicy, less wasabi...',
+  totLbl:'Total: ', cancel:'Cancel', orderBtn:'Order Now', sendingBtn:'Processing...',
+  histDlg:'Order History', close:'Close', sbCart:'View Cart & Order',
+  itmdescLbl:'Ingredients & description:', ingDef:'Freshly prepared every day.',
+  pcsLbl:'⚖ Choose quantity (pcs):',
+  addBtn:'Add to cart', addBtnSel:'Select PCS first',
+  pcsBadge:n=>`⚖ ${n} size options`, fromLabel:'from ',
+  chooseLabel:'Choose →', each:'/pc', soldOut:'OUT OF STOCK', chooseWord:'Choose',
+  sbReady:'Ready', sbLoaded:n=>`${n} items loaded`,
+  sbCart2:n=>`${n} item(s) in cart`,
+  histHdr:n=>`Order #${n}`, histGrand:'GRAND TOTAL:', histEmpty:'No orders yet.\nStart ordering!',
+  help:`<strong>How to use:</strong>\n• Press ▲▼ to adjust qty\n• Click item to view details\n• Use "Cart" to confirm order\n• Order goes to kitchen automatically!`,
+  successMsgs:[['✅','Order placed successfully!\nKitchen received your order.'],['🎉','Transaction complete!\nYour items are being prepared.']],
+  badges:{hot:'HOT',chef:"CHEF'S",signature:'SPECIAL',bestseller:'BEST SELLER'}
+} : {
+  title:'Sushi Akashi — Hệ Thống Đặt Món v1.0', tblLabel:t=>`BÀN: ${t}`,
+  addr:t=>`C:\\SushiAkashi\\ThucDon\\Ban${t}\\`, addrLbl:'Địa chỉ:',
+  mbHist:'Đã đặt', mbCart:'Giỏ hàng', mbAll:'Tất cả', mbHelp:'Trợ giúp', task:'Đặt Món',
+  all:'📁 Tất Cả', cartDlg:'Giỏ Hàng — Sushi Akashi',
+  noteLbl:'Ghi chú cho bếp:', notePH:'Không cay, ít wasabi...',
+  totLbl:'Tổng: ', cancel:'Huỷ', orderBtn:'Đặt Món Ngay', sendingBtn:'Đang xử lý...',
+  histDlg:'Lịch Sử Đặt Món', close:'Đóng', sbCart:'Giỏ & Đặt món',
+  itmdescLbl:'Thành phần & mô tả:', ingDef:'Món ăn tươi ngon chế biến mỗi ngày.',
+  pcsLbl:'⚖ Chọn số miếng:',
+  addBtn:'Thêm vào giỏ', addBtnSel:'Chọn mức PCS trước',
+  pcsBadge:n=>`⚖ ${n} mức giá`, fromLabel:'từ ',
+  chooseLabel:'Chọn →', each:'/phần', soldOut:'HẾT MÓN', chooseWord:'Chọn',
+  sbReady:'Sẵn sàng', sbLoaded:n=>`Đã tải ${n} món`,
+  sbCart2:n=>`${n} món trong giỏ`,
+  histHdr:n=>`Đơn #${n}`, histGrand:'TỔNG CỘNG ĐÃ ĐẶT:', histEmpty:'Chưa có đơn nào.\nHãy chọn món ngay!',
+  help:`<strong>Cách sử dụng:</strong>\n• Nhấn ▲▼ để điều chỉnh số lượng\n• Nhấn tên/ảnh món để xem chi tiết & chọn PCS\n• "Giỏ hàng" để xem và xác nhận\n• Đơn tự động gửi đến bếp!`,
+  successMsgs:[['✅','Đặt món thành công!\nBếp đã nhận đơn. Xin chờ!'],['🎉','Giao dịch hoàn tất!\nMón đang được chuẩn bị.']],
+  badges:{hot:'NÓNG',chef:'BẾP TRƯỞNG',signature:'ĐẶC SẮC',bestseller:'BÁN CHẠY'}
+};
+
+// Apply
+document.getElementById('lbTitle').textContent        = T.title;
+document.getElementById('tableChip').textContent      = T.tblLabel(TBL);
+document.getElementById('addrField').value            = T.addr(TBL);
+document.getElementById('lbAddr').textContent         = T.addrLbl;
+document.getElementById('lbMbHist').textContent       = T.mbHist;
+document.getElementById('lbMbCart').textContent       = T.mbCart;
+document.getElementById('lbMbAll').textContent        = T.mbAll;
+document.getElementById('lbMbHelp').textContent       = T.mbHelp;
+document.getElementById('lbTask').textContent         = T.task;
+document.getElementById('lbCartDlgTitle').textContent = T.cartDlg;
+document.getElementById('lbNote').textContent         = T.noteLbl;
+document.getElementById('noteInput').placeholder      = T.notePH;
+document.getElementById('lbTotLbl').textContent       = T.totLbl;
+document.getElementById('lbCancel').textContent       = T.cancel;
+document.getElementById('btnOrder').textContent       = T.orderBtn;
+document.getElementById('lbHistDlgTitle').textContent = T.histDlg;
+document.getElementById('lbClose').textContent        = T.close;
+document.getElementById('lbSbCart').textContent       = T.sbCart;
+document.getElementById('lbItmDescLbl').textContent   = T.itmdescLbl;
+document.getElementById('lbPcsTitle').textContent     = T.pcsLbl;
+document.getElementById('lbAddBtn').textContent       = T.addBtn;
+document.getElementById('sbMsg').textContent          = T.sbReady;
+setInterval(()=>{ document.getElementById('tbClock').textContent=new Date().toLocaleTimeString('vi-VN',{hour:'2-digit',minute:'2-digit'}); },1000);
+
+// ── CART ENGINE ─────────────────────────────────────────────
+
+// ── Bilingual helpers ────────────────────────────────────────
+const iName = item => (LANG==='en' && item.name_en) ? item.name_en : item.name;
+const iDesc = item => (LANG==='en' && item.description_en) ? item.description_en : (item.description || '');
+
+let CART = {}, menu = null, hist = [];
+let popupItem = null, popupSelPcs = null, popupQty = 1;
+const EC = {sashimi:'🐟',nigiri:'🍣',maki:'🌀',soup:'🍜',drink:'🍵'};
+const cKey = (id,pcs)=>`${id}__${pcs}`;
+const cQty  = (id,pcs)=>CART[cKey(id,pcs)]?.qty||0;
+const cTotalItem = id => Object.values(CART).filter(e=>e.item.id==id).reduce((s,e)=>s+e.qty,0);
+const cCount  = ()=> Object.values(CART).reduce((s,e)=>s+e.qty,0);
+const cGrand  = ()=> Object.values(CART).reduce((s,e)=>s+(e.price*e.qty),0);
+const cEntries= ()=> Object.values(CART).filter(e=>e.qty>0);
+
+function cSet(item, pcs, pcsLabel, price, delta) {
+  const k = cKey(item.id,pcs);
+  if(!CART[k]) CART[k]={item,pcs,pcsLabel,price,qty:0};
+  CART[k].qty = Math.max(0,CART[k].qty+delta);
+  if(!CART[k].qty) delete CART[k];
+  updateStatus(); updateCardQty(item.id);
+}
+function updateCardQty(id) {
+  const total = cTotalItem(id);
+  const qb = document.getElementById(`qb-${id}`);
+  if(qb){qb.textContent=total?`×${total}`:'';qb.className='qty-bub'+(total?' show':'');}
+  const mc = document.getElementById(`mc-${id}`);
+  if(mc) mc.className='menu-card'+(total?' sel':'');
+  const qf = document.getElementById(`qf-${id}`);
+  if(qf) qf.value = cQty(id,0)||0;
+}
+
+async function init(){
+  document.getElementById('sbMsg').textContent=T.sbReady+'...';
+  const r=await fetch('/api/menu'); menu=await r.json();
+  renderTabs(); renderMenu();
+  document.getElementById('sbMsg').textContent=T.sbLoaded(menu.items.length);
+}
+
+function renderTabs(){
+  const el=document.getElementById('tabsRow');
+  el.innerHTML=`<button class="tab-btn active" onclick="fcat(this,'all')">${T.all}</button>`;
+  menu.categories.forEach(c=>el.innerHTML+=`<button class="tab-btn" onclick="fcat(this,'${c.id}')">${c.icon} ${c.name}</button>`);
+}
+function fcat(btn,id){
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+  if(btn)btn.classList.add('active');
+  else document.querySelector('.tab-btn').classList.add('active');
+  renderMenu(id);window.scrollTo({top:0});
+}
+
+function bdg(b){ return b?.length?`<div class="badges">${b.map(x=>{const l=T.badges[x];return l?`<span class="badge badge-${x}">${l}</span>`:''}).join('')}</div>`:''; }
+
+function renderMenu(fc='all'){
+  const con=document.getElementById('menuContainer'); con.innerHTML='';
+  const cats=fc==='all'?menu.categories:menu.categories.filter(c=>c.id===fc);
+  cats.forEach(cat=>{
+    const items=menu.items.filter(i=>i.category===cat.id); if(!items.length)return;
+    const sec=document.createElement('div');
+    sec.innerHTML=`<div class="grp-hdr">${cat.icon} <strong>${cat.name}</strong> <span style="color:#666;font-weight:normal">(${items.length})</span></div>`;
+    const grid=document.createElement('div'); grid.className='menu-grid';
+    items.forEach(item=>{
+      const hasPcs = item.pcs_options?.length>0;
+      const img = item.image?`<img src="${item.image}" alt="" loading="lazy">`:`<div class="c-emoji">${EC[item.category]||'🍱'}</div>`;
+      const priceHtml = hasPcs
+        ? `<span style="font-size:10px;color:#666">${T.fromLabel}</span>${item.price.toLocaleString('vi-VN')}đ`
+        : `${item.price.toLocaleString('vi-VN')}đ`;
+      grid.innerHTML+=`
+        <div class="menu-card" id="mc-${item.id}">
+          <div class="c-img" onclick="openItm(${item.id})">${img}${bdg(item.badges)}${item.available?'':'<div class="c-oos"><span>${T.soldOut}</span></div>'}
+            <div class="qty-bub" id="qb-${item.id}"></div>
+          </div>
+          <div class="c-body" onclick="openItm(${item.id})">
+            <div class="c-name">${iName(item)}</div><div class="c-jp">${item.name_jp}</div>
+            ${item.description?`<div class="c-desc">${iDesc(item)}</div>`:''}
+            ${hasPcs?`<div class="c-pcs-badge">⚖ ${T.pcsBadge(item.pcs_options.length)}</div>`:''}
+          </div>
+          <div class="c-foot-wrap"><div class="c-foot">
+            <div class="c-price">${priceHtml}</div>
+            ${item.available ? hasPcs
+              ? `<button class="btn-choose" onclick="openItm(${item.id})">⚖ ${T.chooseWord}</button>`
+              : `<div class="qty-ctrl"><button class="qty-btn" onclick="simpleCq(${item.id},-1,event)">▼</button><input class="qty-field" id="qf-${item.id}" value="0" readonly><button class="qty-btn" onclick="simpleCq(${item.id},1,event)">▲</button></div>`
+              : ''}
+          </div></div>
+        </div>`;
+    });
+    sec.appendChild(grid); con.appendChild(sec);
+  });
+}
+
+function simpleCq(id,d,e){
+  e?.stopPropagation();
+  const item=menu.items.find(i=>i.id==id); if(!item)return;
+  cSet(item,0,'',item.price,d);
+}
+
+function updateStatus(){
+  const cnt=cCount(),tot=cGrand();
+  document.getElementById('sbQty').textContent=cnt+(LANG==='en'?' items':' món');
+  document.getElementById('sbTot').textContent=tot.toLocaleString('vi-VN')+'đ';
+  const btn=document.getElementById('sbCartBtn');
+  if(cnt>0){btn.classList.remove('hidden');document.getElementById('sbMsg').textContent=T.sbCart2(cnt);}
+  else btn.classList.add('hidden');
+}
+
+// ── ITEM DETAIL / PCS POPUP ──────────────────────────────────
+function openItm(id){
+  const item=menu.items.find(i=>i.id==id); if(!item)return;
+  popupItem=item; popupSelPcs=null; popupQty=1;
+  document.getElementById('itmTitle').textContent = iName(item);
+  document.getElementById('itmImg').innerHTML = item.image?`<img src="${item.image}" alt="" style="width:100%;height:100%;object-fit:cover;">`:`<div class="itm-emoji">${EC[item.category]||'🍱'}</div>`;
+  document.getElementById('itmName').textContent = iName(item);
+  document.getElementById('itmJp').textContent   = item.name_jp||'';
+  document.getElementById('itmDesc').textContent = iDesc(item)||T.ingDef;
+
+  const hasPcs = item.pcs_options?.length>0;
+  document.getElementById('pcsGroup').style.display = hasPcs?'block':'none';
+
+  if(hasPcs){
+    document.getElementById('pcsOpts').innerHTML = item.pcs_options.map((opt,i)=>
+      `<div class="pcs-opt" id="pcsopt-${i}" onclick="selPcs(${i})">
+        <div class="pcs-opt-qty">${opt.pcs}</div>
+        <div class="pcs-opt-lbl">${opt.label||(LANG==='en'?opt.pcs+' pcs':opt.pcs+' miếng')}</div>
+        <div class="pcs-opt-price">${opt.price.toLocaleString('vi-VN')}đ</div>
+      </div>`).join('');
+    document.getElementById('itmAddBtn').disabled=true;
+    document.getElementById('lbAddBtn').textContent=T.addBtnSel;
+    document.getElementById('itmPrice').textContent=T.chooseLabel;
+    document.getElementById('itmPriceSub').textContent='';
+  } else {
+    popupSelPcs={pcs:0,label:'',price:item.price};
+    document.getElementById('itmAddBtn').disabled=false;
+    document.getElementById('lbAddBtn').textContent=T.addBtn;
+    document.getElementById('itmPrice').textContent=item.price.toLocaleString('vi-VN')+'đ';
+    document.getElementById('itmPriceSub').textContent=T.each;
+  }
+  document.getElementById('popupQtyNum').textContent=popupQty;
+  document.getElementById('itmOverlay').classList.add('show');
+  document.getElementById('itmWin').classList.add('show');
+  document.body.style.overflow='hidden';
+}
+
+function selPcs(i){
+  const opt=popupItem.pcs_options[i];
+  popupSelPcs=opt;
+  document.querySelectorAll('.pcs-opt').forEach((el,j)=>el.className='pcs-opt'+(j===i?' selected':''));
+  document.getElementById('itmPrice').textContent=opt.price.toLocaleString('vi-VN')+'đ';
+  document.getElementById('itmPriceSub').textContent=opt.label||(LANG==='en'?opt.pcs+' pcs':opt.pcs+' miếng');
+  document.getElementById('itmAddBtn').disabled=false;
+  document.getElementById('lbAddBtn').textContent=T.addBtn;
+}
+
+function popupCq(d){ popupQty=Math.max(1,popupQty+d); document.getElementById('popupQtyNum').textContent=popupQty; }
+
+function popupAddToCart(){
+  if(!popupItem||!popupSelPcs)return;
+  const lbl=popupSelPcs.label||(LANG==='en'?popupSelPcs.pcs+'pcs':popupSelPcs.pcs+'miếng');
+  cSet(popupItem,popupSelPcs.pcs,lbl,popupSelPcs.price,popupQty);
+  closeItm();
+}
+function closeItm(){ document.getElementById('itmOverlay').classList.remove('show'); document.getElementById('itmWin').classList.remove('show'); document.body.style.overflow=''; popupItem=null; }
+function closeItmBg(e){ if(e.target===document.getElementById('itmOverlay'))closeItm(); }
+
+// ── CART/HISTORY DIALOGS ─────────────────────────────────────
+function openCart(){
+  const entries=cEntries(); if(!entries.length){showMsg('ℹ️','ℹ️',LANG==='en'?'<strong>Cart is empty!</strong>':'<strong>Giỏ hàng trống!</strong>');return;}
+  const tot=cGrand();
+  document.getElementById('cartBody').innerHTML=entries.map(e=>`
+    <div class="cart-row">
+      <div class="cr-icon">${e.item.image?`<img src="${e.item.image}">`:(EC[e.item.category]||'🍱')}</div>
+      <div class="cr-info"><div class="cr-name">${iName(e.item)}</div>${e.pcs?`<div class="cr-pcs">⚖ ${e.pcsLabel}</div>`:''}<div class="cr-sub">${e.price.toLocaleString('vi-VN')}${T.each}</div></div>
+      <div class="cr-ctrl"><button class="qty-btn" onclick="cCartAdj('${e.item.id}__${e.pcs}',-1)" style="width:30px;height:30px">▼</button><input class="qty-field" value="${e.qty}" readonly style="width:26px;height:30px"><button class="qty-btn" onclick="cCartAdj('${e.item.id}__${e.pcs}',1)" style="width:30px;height:30px">▲</button></div>
+      <div class="cr-tot">${(e.price*e.qty).toLocaleString('vi-VN')}đ</div>
+    </div>`).join('');
+  document.getElementById('dlgTot').textContent=tot.toLocaleString('vi-VN')+'đ';
+  showDlg('cartDlg');
+}
+function cCartAdj(key,d){
+  if(!CART[key])return;
+  const id=CART[key].item.id;
+  CART[key].qty=Math.max(0,CART[key].qty+d);
+  if(!CART[key].qty)delete CART[key];
+  updateStatus(); updateCardQty(id);
+  if(!cCount()){closeDlgs();return;}
+  openCart();
+}
+
+function openHist(){
+  const body=document.getElementById('histBody');
+  if(!hist.length){body.innerHTML=`<div class="hist-empty">${T.histEmpty}</div>`;showDlg('histDlg');return;}
+  let grand=0;
+  body.innerHTML=hist.map((o,i)=>{
+    const ot=o.items.reduce((s,x)=>s+x.price*x.qty,0);grand+=ot;
+    const t=new Date(o.createdAt).toLocaleTimeString('vi-VN',{hour:'2-digit',minute:'2-digit'});
+    return `<div class="hist-grp"><div class="hist-hdr">${T.histHdr(i+1)} — ${t}</div>
+      ${o.items.map(x=>`<div class="hist-row"><span>${(LANG==="en"&&x.name_en)?x.name_en:x.name} ×${x.qty}${x.pcs?`<div class="hist-pcs">⚖ ${x.pcsLabel||x.pcs}</div>`:''}</span><span>${(x.price*x.qty).toLocaleString('vi-VN')}đ</span></div>`).join('')}
+      <div style="text-align:right;font-size:10px;color:#666;padding:1px 5px">${(LANG==='en'?'Subtotal':'Tổng đơn')}: ${ot.toLocaleString('vi-VN')}đ</div></div>`;
+  }).join('');
+  body.innerHTML+=`<div class="hist-grand"><span>${T.histGrand}</span><span>${grand.toLocaleString('vi-VN')}đ</span></div>`;
+  showDlg('histDlg');
+}
+
+function showDlg(id){document.getElementById('dlgOverlay').classList.add('show');document.getElementById(id).classList.add('show');}
+function closeDlgs(){document.getElementById('dlgOverlay').classList.remove('show');['cartDlg','histDlg'].forEach(id=>document.getElementById(id).classList.remove('show'));}
+
+let msgCb=null;
+function showMsg(titleIcon,icon,html,onOk){
+  document.getElementById('msgTitle').innerHTML=`${titleIcon} Sushi Akashi`;
+  document.getElementById('msgIcon').textContent=icon;
+  document.getElementById('msgText').innerHTML=html;
+  document.getElementById('progWrap').style.display=onOk?'block':'none';
+  msgCb=onOk||null;
+  document.getElementById('msgOverlay').classList.add('show');
+  if(onOk)setTimeout(()=>document.getElementById('progBar').classList.add('done'),50);
+}
+function closeMsgBox(){document.getElementById('msgOverlay').classList.remove('show');document.getElementById('progBar').classList.remove('done');if(msgCb)msgCb();msgCb=null;}
+function showHelp(){showMsg('❓','❓',T.help);}
+
+async function submitOrder(){
+  const entries=cEntries(); if(!entries.length)return;
+  const btn=document.getElementById('btnOrder'); btn.disabled=true; btn.textContent=T.sendingBtn;
+  const note=document.getElementById('noteInput').value;
+  const items=entries.map(e=>({id:e.item.id,name:e.item.name,name_en:e.item.name_en||"",name_jp:e.item.name_jp||'',price:e.price,qty:e.qty,pcs:e.pcs||0,pcsLabel:e.pcsLabel||''}));
+  try{
+    const r=await fetch('/api/order',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({table:TBL,items,note})});
+    const d=await r.json();
+    if(d.success){
+      hist.push({id:d.orderId,createdAt:new Date().toISOString(),items,note});
+      closeDlgs();
+      const[icon,msg]=T.successMsgs[Math.floor(Math.random()*T.successMsgs.length)];
+      showMsg(icon,icon,`<strong>${msg.split('\n')[0]}</strong>${msg.split('\n')[1]||''}`,()=>{
+        document.getElementById('sbMsg').textContent=T.sbLoaded(menu.items.length);
+      });
+      CART={}; updateStatus(); renderMenu(); document.getElementById('noteInput').value='';
+    }
+  }catch(e){showMsg('⚠️','⚠️',LANG==='en'?'<strong>Error!</strong>Please try again.':'<strong>Lỗi kết nối!</strong>Vui lòng thử lại.');}
+  finally{btn.disabled=false;btn.textContent=T.orderBtn;}
+}
+
+init();
+</script>
+</body>
+</html>

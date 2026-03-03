@@ -1,0 +1,336 @@
+{
+  "categories": [
+    {
+      "id": "sashimi",
+      "name": "Sashimi",
+      "icon": "🐟"
+    },
+    {
+      "id": "nigiri",
+      "name": "Nigiri",
+      "icon": "🍣"
+    },
+    {
+      "id": "maki",
+      "name": "Maki & Roll",
+      "icon": "🌀"
+    },
+    {
+      "id": "soup",
+      "name": "Súp & Salad",
+      "icon": "🍜"
+    },
+    {
+      "id": "drink",
+      "name": "Đồ uống",
+      "icon": "🍵"
+    }
+  ],
+  "items": [
+    {
+      "id": 1,
+      "category": "sashimi",
+      "name": "Sashimi Cá Hồi",
+      "name_jp": "Sake Sashimi",
+      "price": 85000,
+      "available": true,
+      "badges": [
+        "bestseller",
+        "signature"
+      ],
+      "image": null,
+      "description": "Cá hồi tươi Na Uy thái lát mỏng, ăn kèm wasabi và gừng muối",
+      "pcs_options": [
+        {
+          "pcs": 1,
+          "label": "1 miếng / 1 pc",
+          "price": 85000
+        },
+        {
+          "pcs": 3,
+          "label": "3 miếng / 3 pcs",
+          "price": 240000
+        },
+        {
+          "pcs": 5,
+          "label": "5 miếng / 5 pcs",
+          "price": 380000
+        }
+      ],
+      "name_en": "",
+      "description_en": ""
+    },
+    {
+      "id": 2,
+      "category": "sashimi",
+      "name": "Sashimi Cá Ngừ",
+      "name_jp": "Maguro Sashimi",
+      "price": 95000,
+      "available": true,
+      "badges": [
+        "chef"
+      ],
+      "image": null,
+      "description": "Cá ngừ đại dương thịt đỏ thái dày, vị thanh ngọt tự nhiên",
+      "pcs_options": [
+        {
+          "pcs": 1,
+          "label": "1 pc",
+          "price": 95000
+        },
+        {
+          "pcs": 3,
+          "label": "3 pcs",
+          "price": 270000
+        },
+        {
+          "pcs": 5,
+          "label": "5 pcs",
+          "price": 430000
+        }
+      ],
+      "name_en": "",
+      "description_en": ""
+    },
+    {
+      "id": 3,
+      "category": "sashimi",
+      "name": "Sashimi Bạch Tuộc",
+      "name_jp": "Tako Sashimi",
+      "price": 75000,
+      "available": true,
+      "badges": [],
+      "image": null,
+      "description": "Bạch tuộc tươi hấp, thịt giòn mềm, ăn kèm ponzu",
+      "pcs_options": [],
+      "name_en": "",
+      "description_en": ""
+    },
+    {
+      "id": 4,
+      "category": "sashimi",
+      "name": "Sashimi Tôm",
+      "name_jp": "Ebi Sashimi",
+      "price": 80000,
+      "available": true,
+      "badges": [],
+      "image": null,
+      "description": "Tôm sú hấp chín, vị ngọt tự nhiên, ăn kèm sốt mayonnaise",
+      "pcs_options": [],
+      "name_en": "",
+      "description_en": ""
+    },
+    {
+      "id": 5,
+      "category": "nigiri",
+      "name": "Nigiri Cá Hồi",
+      "name_jp": "Sake Nigiri",
+      "price": 35000,
+      "available": true,
+      "badges": [
+        "hot"
+      ],
+      "image": null,
+      "description": "Cơm sushi nặn tay, cá hồi tươi phủ trên, phết nhẹ wasabi",
+      "pcs_options": [],
+      "name_en": "",
+      "description_en": ""
+    },
+    {
+      "id": 6,
+      "category": "nigiri",
+      "name": "Nigiri Cá Ngừ",
+      "name_jp": "Maguro Nigiri",
+      "price": 40000,
+      "available": true,
+      "badges": [],
+      "image": null,
+      "description": "Cơm sushi nặn tay, cá ngừ đỏ phủ trên, đậm đà vị biển",
+      "pcs_options": [],
+      "name_en": "",
+      "description_en": ""
+    },
+    {
+      "id": 7,
+      "category": "nigiri",
+      "name": "Nigiri Tôm",
+      "name_jp": "Ebi Nigiri",
+      "price": 35000,
+      "available": true,
+      "badges": [],
+      "image": null,
+      "description": "Cơm sushi nặn tay, tôm luộc tươi, vị ngọt thanh",
+      "pcs_options": [],
+      "name_en": "",
+      "description_en": ""
+    },
+    {
+      "id": 8,
+      "category": "nigiri",
+      "name": "Nigiri Trứng Cá",
+      "name_jp": "Ikura Nigiri",
+      "price": 45000,
+      "available": true,
+      "badges": [
+        "signature"
+      ],
+      "image": null,
+      "description": "Cơm sushi, trứng cá hồi (ikura) muối nhạt, tan trong miệng",
+      "pcs_options": [],
+      "name_en": "",
+      "description_en": ""
+    },
+    {
+      "id": 9,
+      "category": "maki",
+      "name": "California Roll",
+      "name_jp": "Kariforunia Roru",
+      "price": 75000,
+      "available": true,
+      "badges": [
+        "bestseller"
+      ],
+      "image": null,
+      "description": "Cua giả, dưa leo, bơ, cơm cuộn rong biển bên ngoài, rắc vừng",
+      "pcs_options": [],
+      "name_en": "",
+      "description_en": ""
+    },
+    {
+      "id": 10,
+      "category": "maki",
+      "name": "Dragon Roll",
+      "name_jp": "Doragon Roru",
+      "price": 95000,
+      "available": true,
+      "badges": [
+        "hot",
+        "chef"
+      ],
+      "image": null,
+      "description": "Tôm tempura, bơ, dưa leo, phủ cá hồi lát ngoài, sốt eel",
+      "pcs_options": [],
+      "name_en": "",
+      "description_en": ""
+    },
+    {
+      "id": 11,
+      "category": "maki",
+      "name": "Spicy Tuna Roll",
+      "name_jp": "Supaisii Maguro",
+      "price": 85000,
+      "available": true,
+      "badges": [],
+      "image": null,
+      "description": "Cá ngừ tươi, sốt spicy mayo, dưa leo, cuộn rong biển giòn",
+      "pcs_options": [],
+      "name_en": "",
+      "description_en": ""
+    },
+    {
+      "id": 12,
+      "category": "maki",
+      "name": "Rainbow Roll",
+      "name_jp": "Reinbou Roru",
+      "price": 110000,
+      "available": true,
+      "badges": [
+        "signature",
+        "chef"
+      ],
+      "image": null,
+      "description": "Nhiều loại cá tươi (hồi, ngừ, tôm, cua), bơ, phủ ngoài cuộn",
+      "pcs_options": [],
+      "name_en": "",
+      "description_en": ""
+    },
+    {
+      "id": 13,
+      "category": "soup",
+      "name": "Súp Miso",
+      "name_jp": "Miso Shiru",
+      "price": 35000,
+      "available": true,
+      "badges": [],
+      "image": null,
+      "description": "Tương miso truyền thống, đậu hũ non, rong wakame, hành lá",
+      "pcs_options": [],
+      "name_en": "",
+      "description_en": ""
+    },
+    {
+      "id": 14,
+      "category": "soup",
+      "name": "Salad Rong Biển",
+      "name_jp": "Wakame Sarada",
+      "price": 45000,
+      "available": true,
+      "badges": [],
+      "image": null,
+      "description": "Rong biển wakame tươi, mè rang, sốt ponzu nhẹ, thanh mát",
+      "pcs_options": [],
+      "name_en": "",
+      "description_en": ""
+    },
+    {
+      "id": 15,
+      "category": "soup",
+      "name": "Súp Tom Yum",
+      "name_jp": "Tom Yam",
+      "price": 55000,
+      "available": true,
+      "badges": [
+        "hot"
+      ],
+      "image": null,
+      "description": "Tôm, nấm, sả, lá kaffir, nước cốt dừa, ớt tươi, cà chua",
+      "pcs_options": [],
+      "name_en": "",
+      "description_en": ""
+    },
+    {
+      "id": 16,
+      "category": "drink",
+      "name": "Trà Xanh Nóng",
+      "name_jp": "Ocha",
+      "price": 25000,
+      "available": true,
+      "badges": [],
+      "image": null,
+      "description": "Trà xanh matcha Nhật Bản pha nóng truyền thống, vị thơm nhẹ",
+      "pcs_options": [],
+      "name_en": "",
+      "description_en": ""
+    },
+    {
+      "id": 17,
+      "category": "drink",
+      "name": "Nước Lọc",
+      "name_jp": "Mizu",
+      "price": 15000,
+      "available": true,
+      "badges": [],
+      "image": null,
+      "description": "Nước lọc tinh khiết, phục vụ lạnh hoặc thường",
+      "pcs_options": [],
+      "name_en": "",
+      "description_en": ""
+    },
+    {
+      "id": 18,
+      "category": "drink",
+      "name": "Sake",
+      "name_jp": "Sake",
+      "price": 85000,
+      "available": true,
+      "badges": [
+        "signature"
+      ],
+      "image": null,
+      "description": "Rượu sake Nhật Bản chính thống, độ cồn nhẹ, vị thơm tinh tế",
+      "pcs_options": [],
+      "name_en": "",
+      "description_en": ""
+    }
+  ]
+}

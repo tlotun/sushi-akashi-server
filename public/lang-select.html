@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <title>Sushi Akashi 鮨灯</title>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@300;400;700;900&family=Noto+Serif+JP:wght@300;400;700&family=Cormorant+Garamond:ital,wght@0,300;0,600;1,300&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --ink: #0e0a08; --ink2: #1e1410;
+      --gold: #c9a96e; --gold2: #e8c87a; --gold3: #f5dfa0;
+      --red: #8b1a1a; --red2: #c02020;
+      --cream: #f8f3ea; --cream2: #f0e8d8;
+    }
+    * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+
+    body {
+      font-family: 'Cormorant Garamond', 'Noto Serif JP', serif;
+      background: var(--ink);
+      min-height: 100vh;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      overflow: hidden; position: relative;
+      padding: 20px;
+    }
+
+    /* ── ANIMATED INK BACKGROUND ── */
+    .bg-art {
+      position: fixed; inset: 0; z-index: 0; pointer-events: none;
+      overflow: hidden;
+    }
+    .bg-art svg { width: 100%; height: 100%; opacity: 0.08; }
+
+    /* Floating particles */
+    .particles { position: fixed; inset: 0; z-index: 0; pointer-events: none; overflow: hidden; }
+    .particle {
+      position: absolute; border-radius: 50%;
+      background: radial-gradient(circle, var(--gold) 0%, transparent 70%);
+      animation: floatUp linear infinite;
+      opacity: 0;
+    }
+    @keyframes floatUp {
+      0%   { transform: translateY(100vh) scale(0); opacity: 0; }
+      10%  { opacity: 0.6; }
+      90%  { opacity: 0.3; }
+      100% { transform: translateY(-20vh) scale(1); opacity: 0; }
+    }
+
+    /* ── CARD ── */
+    .card {
+      position: relative; z-index: 10;
+      background: var(--ink2);
+      border: 1px solid rgba(201,169,110,0.3);
+      box-shadow: 0 0 0 1px rgba(201,169,110,0.1), 0 30px 80px rgba(0,0,0,0.8), inset 0 1px 0 rgba(255,255,255,0.05);
+      width: 100%; max-width: 360px;
+      padding: 40px 30px 36px;
+      text-align: center;
+      animation: cardIn 0.8s cubic-bezier(0.22, 0.61, 0.36, 1) both;
+    }
+    @keyframes cardIn {
+      0%   { opacity: 0; transform: translateY(30px) scale(0.96); }
+      100% { opacity: 1; transform: translateY(0) scale(1); }
+    }
+
+    /* Top decorative line */
+    .card::before {
+      content: '';
+      position: absolute; top: 0; left: 10%; right: 10%; height: 2px;
+      background: linear-gradient(90deg, transparent, var(--gold), transparent);
+    }
+
+    /* ── LOGO AREA ── */
+    .logo-wrap {
+      margin-bottom: 28px;
+      animation: fadeInDown 0.6s ease both 0.2s;
+    }
+    @keyframes fadeInDown { from{opacity:0;transform:translateY(-16px)} to{opacity:1;transform:translateY(0)} }
+
+    .logo-img {
+      width: 72px; height: 72px; object-fit: contain;
+      margin: 0 auto 16px;
+      display: block;
+      filter: drop-shadow(0 0 20px rgba(201,169,110,0.4));
+      animation: logoPulse 3s ease-in-out infinite;
+    }
+    @keyframes logoPulse { 0%,100%{filter:drop-shadow(0 0 16px rgba(201,169,110,.3));} 50%{filter:drop-shadow(0 0 28px rgba(201,169,110,.6));} }
+
+    .rest-jp {
+      font-family: 'Noto Serif JP', serif;
+      font-size: 32px; font-weight: 700;
+      color: white; letter-spacing: 8px;
+      margin-bottom: 6px;
+    }
+    .rest-en {
+      font-size: 13px; font-weight: 300; letter-spacing: 5px;
+      color: rgba(255,255,255,0.4); text-transform: uppercase;
+    }
+    .gold-rule {
+      width: 60px; height: 1px;
+      background: linear-gradient(90deg, transparent, var(--gold), transparent);
+      margin: 18px auto;
+    }
+
+    /* ── WELCOME TEXT ── */
+    .welcome {
+      margin-bottom: 32px;
+      animation: fadeIn 0.6s ease both 0.4s;
+    }
+    @keyframes fadeIn { from{opacity:0} to{opacity:1} }
+    .welcome-main {
+      font-size: 17px; font-weight: 600;
+      color: rgba(255,255,255,0.8);
+      margin-bottom: 6px; letter-spacing: 0.5px;
+    }
+    .welcome-sub {
+      font-size: 13px; font-weight: 300; font-style: italic;
+      color: rgba(255,255,255,0.4); letter-spacing: 1px;
+    }
+
+    /* ── LANGUAGE BUTTONS ── */
+    .lang-btns {
+      display: grid; grid-template-columns: 1fr 1fr;
+      gap: 14px;
+      animation: fadeInUp 0.6s ease both 0.5s;
+    }
+    @keyframes fadeInUp { from{opacity:0;transform:translateY(16px)} to{opacity:1;transform:translateY(0)} }
+
+    .lang-btn {
+      padding: 22px 14px;
+      border: 1px solid rgba(201,169,110,0.25);
+      background: rgba(255,255,255,0.03);
+      cursor: pointer;
+      transition: all 0.2s;
+      position: relative; overflow: hidden;
+      display: flex; flex-direction: column;
+      align-items: center; gap: 10px;
+    }
+    .lang-btn::before {
+      content: '';
+      position: absolute; inset: 0;
+      background: linear-gradient(135deg, transparent 0%, rgba(201,169,110,0.06) 100%);
+      opacity: 0; transition: opacity 0.2s;
+    }
+    .lang-btn:hover::before, .lang-btn:active::before { opacity: 1; }
+    .lang-btn:active { transform: scale(0.97); }
+    .lang-btn:hover  { border-color: rgba(201,169,110,0.55); }
+
+    .lang-btn.vi-btn { border-color: rgba(192,32,32,0.35); }
+    .lang-btn.vi-btn:hover { border-color: rgba(192,32,32,0.7); }
+    .lang-btn.en-btn { border-color: rgba(201,169,110,0.35); }
+    .lang-btn.en-btn:hover { border-color: rgba(201,169,110,0.7); }
+
+    .lang-flag { font-size: 34px; line-height: 1; }
+    .lang-name {
+      font-size: 16px; font-weight: 600; letter-spacing: 0.5px;
+      color: white;
+    }
+    .lang-native { font-size: 12px; font-weight: 300; color: rgba(255,255,255,0.4); letter-spacing: 1px; }
+
+    /* Loading state */
+    .loading-overlay {
+      position: fixed; inset: 0; z-index: 100;
+      background: var(--ink);
+      display: none; align-items: center; justify-content: center;
+      flex-direction: column; gap: 16px;
+    }
+    .loading-overlay.show { display: flex; }
+    .loading-spinner {
+      width: 36px; height: 36px;
+      border: 2px solid rgba(201,169,110,0.2);
+      border-top-color: var(--gold);
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .loading-txt { font-size: 14px; color: rgba(255,255,255,0.4); letter-spacing: 2px; }
+
+    /* ── TABLE CHIP ── */
+    .table-info {
+      position: absolute; top: 16px; right: 16px; z-index: 20;
+      background: rgba(201,169,110,0.12); border: 1px solid rgba(201,169,110,0.3);
+      padding: 6px 14px; font-size: 12px;
+      color: var(--gold); letter-spacing: 1px;
+    }
+
+    /* ── FOOTER ── */
+    .footer {
+      position: relative; z-index: 10;
+      margin-top: 24px;
+      font-size: 11px; color: rgba(255,255,255,0.2);
+      letter-spacing: 2px; text-transform: uppercase;
+      animation: fadeIn 1s ease both 0.8s;
+    }
+  </style>
+</head>
+<body>
+
+<!-- ANIMATED BG -->
+<div class="bg-art">
+  <svg viewBox="0 0 400 800" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice">
+    <!-- Mountains -->
+    <path d="M0 800 L80 500 L160 650 L220 380 L300 560 L360 320 L400 500 L400 800Z" fill="white"/>
+    <!-- Moon -->
+    <circle cx="320" cy="100" r="70" fill="white"/>
+    <circle cx="345" cy="88"  r="64" fill="#0e0a08"/>
+    <!-- Bamboo -->
+    <rect x="30" y="200" width="8" height="600" fill="white"/>
+    <rect x="55" y="350" width="6" height="450" fill="white"/>
+    <ellipse cx="20" cy="300" rx="35" ry="10" transform="rotate(-35 20 300)" fill="white"/>
+    <ellipse cx="20" cy="430" rx="40" ry="10" transform="rotate(-40 20 430)" fill="white"/>
+    <ellipse cx="68" cy="450" rx="32" ry="9"  transform="rotate(-30 68 450)" fill="white"/>
+    <!-- Wave lines -->
+    <path d="M0 720 Q50 700 100 720 Q150 740 200 720 Q250 700 300 720 Q350 740 400 720" stroke="white" stroke-width="1.5" fill="none"/>
+    <path d="M0 740 Q50 720 100 740 Q150 760 200 740 Q250 720 300 740 Q350 760 400 740" stroke="white" stroke-width="1" fill="none"/>
+  </svg>
+</div>
+
+<div class="particles" id="particles"></div>
+
+<!-- TABLE INFO -->
+<div class="table-info" id="tableChip"></div>
+
+<!-- CARD -->
+<div class="card">
+  <div class="logo-wrap">
+    <img src="/logo.png" class="logo-img" alt="logo">
+    <div class="rest-jp">鮨灯</div>
+    <div class="rest-en">Sushi Akashi</div>
+    <div class="gold-rule"></div>
+  </div>
+
+  <div class="welcome">
+    <div class="welcome-main">Chào mừng quý khách</div>
+    <div class="welcome-sub">Welcome · ようこそ</div>
+  </div>
+
+  <div class="lang-btns">
+    <button class="lang-btn vi-btn" onclick="selectLang('vi')">
+      <div class="lang-flag">🇻🇳</div>
+      <div class="lang-name">Tiếng Việt</div>
+      <div class="lang-native">Việt Nam</div>
+    </button>
+    <button class="lang-btn en-btn" onclick="selectLang('en')">
+      <div class="lang-flag">🇬🇧</div>
+      <div class="lang-name">English</div>
+      <div class="lang-native">International</div>
+    </button>
+  </div>
+</div>
+
+<div class="footer">© Sushi Akashi 鮨灯</div>
+
+<!-- LOADING -->
+<div class="loading-overlay" id="loading">
+  <div class="loading-spinner"></div>
+  <div class="loading-txt">Loading menu…</div>
+</div>
+
+<script>
+// Spawn particles
+(function(){
+  const c = document.getElementById('particles');
+  for(let i = 0; i < 12; i++){
+    const p = document.createElement('div'); p.className = 'particle';
+    const sz = 4 + Math.random() * 8;
+    p.style.cssText = `width:${sz}px;height:${sz}px;left:${Math.random()*100}vw;animation-duration:${8+Math.random()*10}s;animation-delay:${Math.random()*8}s;`;
+    c.appendChild(p);
+  }
+})();
+
+const params = new URLSearchParams(location.search);
+const table  = params.get('table') || '?';
+document.getElementById('tableChip').textContent = table !== '?' ? `Table / Bàn ${table}` : '';
+
+const THEMES = {
+  'inkwash': '/order-inkwash',
+  'manga':   '/order-manga',
+  'snes':    '/order-snes',
+  'win95':   '/order-win95',
+  'classic': '/order'
+};
+
+async function selectLang(lang) {
+  document.getElementById('loading').classList.add('show');
+  try {
+    const cfg = await fetch('/api/config').then(r => r.json());
+    const theme = cfg.activeTheme || 'inkwash';
+    const base  = THEMES[theme] || '/order-inkwash';
+    window.location.href = `${base}?table=${table}&lang=${lang}`;
+  } catch(e) {
+    window.location.href = `/order-inkwash?table=${table}&lang=${lang}`;
+  }
+}
+</script>
+</body>
+</html>

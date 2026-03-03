@@ -1,0 +1,495 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+  <title>Sushi Akashi 鮨灯</title>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@300;400;700&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --ink:#1c1410; --ink-soft:#3d2b1f; --cream:#faf7f2; --cream-dark:#f0ebe1;
+      --blush:#d4877a; --blush-light:#f0c4ba; --blush-pale:#fdf0ec;
+      --mist:#9b8ea8; --gold:#c9a96e;
+      --shadow:0 4px 24px rgba(28,20,16,.10); --shadow-sm:0 2px 12px rgba(28,20,16,.07);
+    }
+    *{margin:0;padding:0;box-sizing:border-box;}
+    body{font-family:'Cormorant Garamond','Noto Serif JP',serif;background:var(--cream);color:var(--ink);min-height:100vh;padding-bottom:160px;}
+
+    /* HEADER */
+    .header{background:var(--ink);position:sticky;top:0;z-index:100;box-shadow:0 3px 20px rgba(0,0,0,.35);}
+    .header-inner{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;}
+    .logo-wrap{display:flex;align-items:center;gap:10px;}
+    .logo-img{width:48px;height:48px;object-fit:contain;}
+    .logo-en{font-size:11px;letter-spacing:3px;color:rgba(255,255,255,.55);text-transform:uppercase;}
+    .logo-jp{font-family:'Noto Serif JP',serif;font-size:22px;font-weight:700;color:#fff;letter-spacing:2px;}
+    .header-right{display:flex;align-items:center;gap:8px;}
+    .table-badge{background:var(--blush);color:white;border-radius:20px;padding:5px 14px;font-size:13px;font-weight:600;}
+    .history-btn{background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.25);color:rgba(255,255,255,.85);border-radius:20px;padding:5px 12px;font-size:12px;font-family:inherit;cursor:pointer;}
+    .history-badge{background:var(--gold);color:var(--ink);border-radius:10px;padding:1px 6px;font-size:11px;font-weight:700;margin-left:4px;display:none;}
+
+    /* CATEGORY TABS */
+    .cat-wrap{background:white;border-bottom:1px solid var(--cream-dark);position:sticky;top:73px;z-index:90;}
+    .cat-scroll{display:flex;overflow-x:auto;scrollbar-width:none;}
+    .cat-scroll::-webkit-scrollbar{display:none;}
+    .cat-btn{flex-shrink:0;padding:13px 20px;border:none;background:transparent;font-family:'Cormorant Garamond',serif;font-size:14px;font-weight:600;letter-spacing:.5px;color:#888;cursor:pointer;position:relative;white-space:nowrap;transition:color .2s;}
+    .cat-btn::after{content:'';position:absolute;bottom:0;left:20%;right:20%;height:2px;background:var(--blush);transform:scaleX(0);transition:transform .2s;}
+    .cat-btn.active{color:var(--ink);}
+    .cat-btn.active::after{transform:scaleX(1);}
+
+    /* MENU */
+    .section-header{padding:24px 16px 12px;display:flex;align-items:center;gap:10px;}
+    .section-line{flex:1;height:1px;background:linear-gradient(to right,var(--blush-light),transparent);}
+    .section-name{font-size:18px;font-weight:600;font-style:italic;color:var(--ink-soft);letter-spacing:1px;}
+    .menu-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;padding:0 12px 8px;}
+    .menu-item{background:white;border-radius:16px;overflow:hidden;box-shadow:var(--shadow-sm);transition:transform .15s;position:relative;}
+    .menu-item:active{transform:scale(.97);}
+    .item-visual{position:relative;height:110px;overflow:hidden;background:var(--cream);}
+    .item-visual img{width:100%;height:100%;object-fit:cover;display:block;}
+    .item-emoji-fallback{width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:48px;background:linear-gradient(135deg,var(--blush-pale),var(--cream));}
+    .badges{position:absolute;top:6px;left:6px;display:flex;flex-wrap:wrap;gap:3px;}
+    .badge{font-size:9px;font-weight:700;letter-spacing:.5px;padding:2px 6px;border-radius:10px;text-transform:uppercase;}
+    .badge-hot{background:#ff4757;color:white;}
+    .badge-chef{background:var(--ink);color:var(--gold);}
+    .badge-signature{background:var(--mist);color:white;}
+    .badge-bestseller{background:var(--gold);color:var(--ink);}
+    .item-unavail-overlay{position:absolute;inset:0;background:rgba(250,247,242,.75);display:flex;align-items:center;justify-content:center;font-size:12px;font-style:italic;color:#999;letter-spacing:1px;}
+    .item-body{padding:10px 10px 12px;}
+    .item-name{font-size:14px;font-weight:600;line-height:1.3;margin-bottom:2px;}
+    .item-name-jp{font-family:'Noto Serif JP',serif;font-size:10px;font-weight:300;color:#aaa;margin-bottom:4px;}
+    .item-desc{font-size:11px;color:#bbb;line-height:1.4;margin-bottom:8px;font-style:italic;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;}
+    .item-footer{display:flex;align-items:center;justify-content:space-between;}
+    .item-price{font-size:15px;font-weight:700;color:var(--blush);}
+    .qty-ctrl{display:flex;align-items:center;gap:5px;}
+    .qty-btn{width:26px;height:26px;border-radius:50%;border:none;font-size:15px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .15s;}
+    .qty-btn.minus{background:var(--cream-dark);color:#888;}
+    .qty-btn.plus{background:var(--ink);color:white;}
+    .qty-btn.plus:active{background:var(--blush);}
+    .qty-num{font-size:15px;font-weight:700;min-width:16px;text-align:center;}
+
+    /* CART BAR */
+    .cart-bar{position:fixed;bottom:0;left:0;right:0;z-index:200;padding:12px 16px 24px;background:linear-gradient(to top,white 65%,transparent);}
+    .cart-btn{background:var(--ink);color:white;border-radius:16px;padding:15px 20px;display:flex;align-items:center;justify-content:space-between;cursor:pointer;box-shadow:0 6px 24px rgba(28,20,16,.3);}
+    .cart-btn:active{background:var(--blush);}
+    .cart-btn.hidden{display:none;}
+    .cb-left{display:flex;align-items:center;gap:10px;}
+    .cb-count{background:var(--blush);color:white;border-radius:10px;padding:3px 10px;font-size:13px;font-weight:700;}
+    .cb-label{font-size:16px;font-weight:600;letter-spacing:.5px;}
+    .cb-total{font-size:16px;font-weight:700;color:var(--gold);}
+
+    /* OVERLAY */
+    .overlay{position:fixed;inset:0;background:rgba(28,20,16,.5);z-index:300;display:none;backdrop-filter:blur(2px);}
+    .overlay.show{display:block;}
+
+    /* CART MODAL */
+    .cart-modal{position:fixed;bottom:0;left:0;right:0;background:var(--cream);border-radius:24px 24px 0 0;z-index:400;max-height:82vh;display:flex;flex-direction:column;transform:translateY(100%);transition:transform .3s cubic-bezier(.34,1.2,.64,1);}
+    .cart-modal.show{transform:translateY(0);}
+    .modal-drag{width:40px;height:4px;background:#ddd;border-radius:2px;margin:12px auto 0;}
+    .modal-head{padding:14px 20px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--cream-dark);flex-shrink:0;}
+    .modal-head-title{font-size:20px;font-weight:600;font-style:italic;}
+    .modal-close{width:32px;height:32px;border-radius:50%;border:1px solid #ddd;background:white;font-size:14px;cursor:pointer;display:flex;align-items:center;justify-content:center;color:#888;}
+    .cart-items{overflow-y:auto;flex:1;padding:8px 16px;}
+    .cart-item{display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid var(--cream-dark);}
+    .ci-thumb{width:52px;height:52px;border-radius:10px;overflow:hidden;flex-shrink:0;background:var(--cream-dark);display:flex;align-items:center;justify-content:center;font-size:24px;}
+    .ci-thumb img{width:100%;height:100%;object-fit:cover;}
+    .ci-info{flex:1;}
+    .ci-name{font-size:15px;font-weight:600;}
+    .ci-price{font-size:12px;color:#aaa;margin-top:2px;}
+    .ci-ctrl{display:flex;align-items:center;gap:8px;}
+    .ci-total{font-size:15px;font-weight:700;color:var(--blush);min-width:75px;text-align:right;}
+    .note-section{padding:12px 16px;border-top:1px solid var(--cream-dark);flex-shrink:0;}
+    .note-label{font-size:13px;font-style:italic;color:#999;margin-bottom:6px;display:block;}
+    .note-input{width:100%;border:1px solid var(--cream-dark);border-radius:10px;padding:10px 12px;font-family:'Cormorant Garamond',serif;font-size:14px;background:white;resize:none;outline:none;}
+    .note-input:focus{border-color:var(--blush);}
+    .modal-foot{padding:14px 16px 24px;flex-shrink:0;border-top:1px solid var(--cream-dark);background:white;}
+    .total-line{display:flex;justify-content:space-between;margin-bottom:14px;}
+    .total-label{font-size:15px;font-style:italic;color:#888;}
+    .total-value{font-size:18px;font-weight:700;}
+    .btn-order{width:100%;background:var(--ink);color:white;border:none;border-radius:14px;padding:16px;font-family:'Cormorant Garamond',serif;font-size:18px;font-weight:600;letter-spacing:1px;cursor:pointer;transition:background .2s;}
+    .btn-order:active{background:var(--blush);}
+    .btn-order:disabled{background:#ccc;cursor:not-allowed;}
+
+    /* HISTORY PANEL */
+    .history-modal{position:fixed;bottom:0;left:0;right:0;background:var(--cream);border-radius:24px 24px 0 0;z-index:400;max-height:80vh;display:flex;flex-direction:column;transform:translateY(100%);transition:transform .3s cubic-bezier(.34,1.2,.64,1);}
+    .history-modal.show{transform:translateY(0);}
+    .hm-head{padding:16px 20px 14px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--cream-dark);flex-shrink:0;}
+    .hm-title{font-size:18px;font-weight:600;font-style:italic;}
+    .hm-body{overflow-y:auto;flex:1;padding:12px 16px 24px;}
+    .hm-order-group{margin-bottom:20px;}
+    .hm-group-time{font-size:11px;color:#bbb;letter-spacing:1px;text-transform:uppercase;margin-bottom:8px;display:flex;align-items:center;gap:8px;}
+    .hm-group-time::after{content:'';flex:1;height:1px;background:var(--cream-dark);}
+    .hm-item{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px dashed var(--cream-dark);}
+    .hm-item:last-child{border:none;}
+    .hm-item-left{display:flex;align-items:center;gap:10px;}
+    .hm-thumb{width:40px;height:40px;border-radius:8px;overflow:hidden;background:var(--cream-dark);display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;}
+    .hm-thumb img{width:100%;height:100%;object-fit:cover;}
+    .hm-name{font-size:14px;font-weight:600;}
+    .hm-qty{font-size:12px;color:#aaa;}
+    .hm-price{font-size:14px;font-weight:700;color:var(--blush);}
+    .hm-total-row{display:flex;justify-content:space-between;padding:12px 0 0;font-weight:700;font-size:15px;}
+    .hm-empty{text-align:center;padding:40px;color:#ccc;font-style:italic;}
+
+    /* SUCCESS SCREEN */
+    .success-screen{position:fixed;inset:0;z-index:500;display:none;flex-direction:column;align-items:center;justify-content:center;padding:40px;text-align:center;background:var(--ink);overflow:hidden;}
+    .success-screen.show{display:flex;}
+
+    /* Floating petals animation */
+    .petals{position:absolute;inset:0;pointer-events:none;overflow:hidden;}
+    .petal{position:absolute;top:-40px;font-size:20px;animation:fall linear infinite;opacity:0;}
+    @keyframes fall{0%{transform:translateY(0) rotate(0);opacity:1;}100%{transform:translateY(110vh) rotate(360deg);opacity:0;}}
+
+    .success-logo{width:70px;height:70px;object-fit:contain;margin-bottom:20px;animation:popIn .5s cubic-bezier(.34,1.5,.64,1);}
+    @keyframes popIn{0%{transform:scale(0);opacity:0;}100%{transform:scale(1);opacity:1;}}
+    .success-jp{font-family:'Noto Serif JP',serif;font-size:32px;font-weight:700;color:white;letter-spacing:4px;margin-bottom:6px;}
+    .success-en{font-family:'Cormorant Garamond',serif;font-size:17px;font-style:italic;color:rgba(255,255,255,.6);margin-bottom:28px;}
+    .success-card{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);border-radius:20px;padding:20px 28px;margin-bottom:28px;min-width:260px;}
+    .success-msg-big{font-family:'Cormorant Garamond',serif;font-size:22px;font-weight:600;color:white;margin-bottom:6px;}
+    .success-msg-sub{font-size:14px;color:rgba(255,255,255,.6);line-height:1.7;font-style:italic;}
+    .success-table{font-family:'Noto Serif JP',serif;font-size:15px;color:var(--gold);margin-top:10px;}
+    .success-actions{display:flex;gap:12px;}
+    .btn-history{background:rgba(255,255,255,.15);border:1.5px solid rgba(255,255,255,.4);color:white;border-radius:14px;padding:12px 22px;font-family:'Cormorant Garamond',serif;font-size:15px;font-weight:600;cursor:pointer;letter-spacing:.5px;}
+    .btn-more{background:white;color:var(--ink);border:none;border-radius:14px;padding:12px 22px;font-family:'Cormorant Garamond',serif;font-size:15px;font-weight:700;cursor:pointer;letter-spacing:.5px;}
+    .btn-more:active,.btn-history:active{opacity:.8;}
+  </style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-inner">
+    <div class="logo-wrap">
+      <img src="/logo.png" alt="Sushi Akashi" class="logo-img">
+      <div>
+        <div class="logo-en">Sushi Akashi</div>
+        <div class="logo-jp">鮨灯</div>
+      </div>
+    </div>
+    <div class="header-right">
+      <button class="history-btn" onclick="openHistory()">🧾 Đã đặt<span class="history-badge" id="historyBadge"></span></button>
+      <div class="table-badge" id="tableLabel">Bàn —</div>
+    </div>
+  </div>
+</div>
+
+<div class="cat-wrap"><div class="cat-scroll" id="catScroll"></div></div>
+<div id="menuContainer"></div>
+
+<div class="cart-bar">
+  <div class="cart-btn hidden" id="cartBtn" onclick="openCart()">
+    <div class="cb-left">
+      <div class="cb-count" id="cartCount">0</div>
+      <div class="cb-label">Xem giỏ hàng</div>
+    </div>
+    <div class="cb-total" id="cartTotalBar">0đ</div>
+  </div>
+</div>
+
+<div class="overlay" id="overlay"></div>
+
+<!-- CART MODAL -->
+<div class="cart-modal" id="cartModal">
+  <div class="modal-drag"></div>
+  <div class="modal-head">
+    <div class="modal-head-title">🛒 Giỏ hàng</div>
+    <button class="modal-close" onclick="closeModals()">✕</button>
+  </div>
+  <div class="cart-items" id="cartItems"></div>
+  <div class="note-section">
+    <label class="note-label">📝 Ghi chú cho bếp (tuỳ chọn)</label>
+    <textarea class="note-input" id="noteInput" rows="2" placeholder="Ví dụ: không cay, ít wasabi..."></textarea>
+  </div>
+  <div class="modal-foot">
+    <div class="total-line">
+      <span class="total-label">Tổng cộng</span>
+      <span class="total-value" id="cartTotal">0đ</span>
+    </div>
+    <button class="btn-order" id="btnOrder" onclick="submitOrder()">ご注文 · Đặt Món Ngay</button>
+  </div>
+</div>
+
+<!-- HISTORY MODAL -->
+<div class="history-modal" id="historyModal">
+  <div class="modal-drag"></div>
+  <div class="hm-head">
+    <div class="hm-title">🧾 Các món đã đặt</div>
+    <button class="modal-close" onclick="closeModals()">✕</button>
+  </div>
+  <div class="hm-body" id="historyBody"></div>
+</div>
+
+<!-- SUCCESS -->
+<div class="success-screen" id="successScreen">
+  <div class="petals" id="petals"></div>
+  <img src="/logo.png" alt="" class="success-logo">
+  <div class="success-jp">ありがとう</div>
+  <div class="success-en">Cảm ơn quý khách đã ghé thăm</div>
+  <div class="success-card">
+    <div class="success-msg-big" id="successMsg">🎉 Đặt món thành công!</div>
+    <div class="success-msg-sub" id="successSub">Đơn hàng đã bay thẳng vào bếp rồi!<br>Nhân viên sẽ phục vụ bạn ngay thôi ✨</div>
+    <div class="success-table" id="successTable"></div>
+  </div>
+  <div class="success-actions">
+    <button class="btn-history" onclick="goToHistory()">🧾 Xem đã đặt gì</button>
+    <button class="btn-more" onclick="resetOrder()">+ Gọi thêm món</button>
+  </div>
+</div>
+
+<script>
+const BADGE_CONFIG={hot:{label:'HOT 🔥',cls:'badge-hot'},chef:{label:"Chef's ✨",cls:'badge-chef'},signature:{label:'Signature',cls:'badge-signature'},bestseller:{label:'Best 🏆',cls:'badge-bestseller'}};
+const CAT_EMOJI={sashimi:'🐟',nigiri:'🍣',maki:'🌀',soup:'🍜',drink:'🍵'};
+const THANK_YOU_MSGS=[
+  ['🎉 Đặt món thành công!','Đơn hàng đã bay thẳng vào bếp rồi!<br>Nhân viên sẽ phục vụ bạn ngay thôi ✨'],
+  ['🍣 Ngon lắm, chọn khéo quá!','Bếp đã nhận được đơn, đang chuẩn bị cho bạn.<br>Thư giãn và chờ một chút nhé 🌸'],
+  ['✅ Gọi xong rồi, thư giãn thôi!','Các món đang được chuẩn bị tỉ mỉ.<br>Cảm ơn bạn đã tin tưởng Sushi Akashi 🎋'],
+  ['🌸 Tuyệt vời! Bếp nhận được rồi!','Đang chuẩn bị những món ngon nhất cho bạn.<br>Một chút kiên nhẫn nhé, xứng đáng lắm đó 😊'],
+];
+
+const params=new URLSearchParams(location.search);
+const tableNum=params.get('table')||'?';
+document.getElementById('tableLabel').textContent=`Bàn ${tableNum}`;
+
+// Session history
+let sessionHistory=[];
+let menu=null, cart={};
+
+async function loadMenu(){
+  const res=await fetch('/api/menu');
+  menu=await res.json();
+  renderCategories();
+  renderMenu();
+}
+
+function renderCategories(){
+  const el=document.getElementById('catScroll');
+  el.innerHTML=`<button class="cat-btn active" onclick="filterCat(this,'all')">🍱 Tất cả</button>`;
+  menu.categories.forEach(c=>{
+    el.innerHTML+=`<button class="cat-btn" onclick="filterCat(this,'${c.id}')">${c.icon} ${c.name}</button>`;
+  });
+}
+
+function filterCat(btn,catId){
+  document.querySelectorAll('.cat-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  renderMenu(catId);
+  window.scrollTo({top:120,behavior:'smooth'});
+}
+
+function badgesHTML(badges){
+  if(!badges||!badges.length) return '';
+  return `<div class="badges">${badges.map(b=>{const c=BADGE_CONFIG[b];return c?`<span class="badge ${c.cls}">${c.label}</span>`:''}).join('')}</div>`;
+}
+
+function renderMenu(filterCatId='all'){
+  const container=document.getElementById('menuContainer');
+  container.innerHTML='';
+  const cats=filterCatId==='all'?menu.categories:menu.categories.filter(c=>c.id===filterCatId);
+  cats.forEach(cat=>{
+    const items=menu.items.filter(i=>i.category===cat.id);
+    if(!items.length) return;
+    const sec=document.createElement('div');
+    sec.innerHTML=`<div class="section-header"><span>${cat.icon}</span><span class="section-name">${cat.name}</span><div class="section-line"></div></div>`;
+    const grid=document.createElement('div');
+    grid.className='menu-grid';
+    items.forEach(item=>{
+      const qty=cart[item.id]||0;
+      const imgHTML=item.image?`<img src="${item.image}" alt="${item.name}" loading="lazy">`:`<div class="item-emoji-fallback">${CAT_EMOJI[item.category]||'🍱'}</div>`;
+      grid.innerHTML+=`
+        <div class="menu-item">
+          <div class="item-visual">
+            ${imgHTML}
+            ${badgesHTML(item.badges)}
+            ${item.available?'':'<div class="item-unavail-overlay">Hết món</div>'}
+          </div>
+          <div class="item-body">
+            <div class="item-name">${item.name}</div>
+            <div class="item-name-jp">${item.name_jp}</div>
+            ${item.description ? `<div class="item-desc">🌿 ${item.description}</div>` : ''}
+            <div class="item-footer">
+              <div class="item-price">${item.price.toLocaleString('vi-VN')}đ</div>
+              <div class="qty-ctrl" ${item.available?'':'style="pointer-events:none;opacity:.3"'}>
+                <button class="qty-btn minus" onclick="changeQty(${item.id},-1)" style="opacity:${qty>0?1:.3}">−</button>
+                <div class="qty-num" id="qty-${item.id}">${qty||''}</div>
+                <button class="qty-btn plus" onclick="changeQty(${item.id},1)">+</button>
+              </div>
+            </div>
+          </div>
+        </div>`;
+    });
+    sec.appendChild(grid);
+    container.appendChild(sec);
+  });
+}
+
+function changeQty(id,delta){
+  cart[id]=Math.max(0,(cart[id]||0)+delta);
+  if(!cart[id]) delete cart[id];
+  const el=document.getElementById(`qty-${id}`);
+  if(el){ el.textContent=cart[id]||''; el.parentElement.querySelector('.minus').style.opacity=cart[id]>0?'1':'.3'; }
+  updateCartBar();
+}
+
+function updateCartBar(){
+  const qty=Object.values(cart).reduce((s,q)=>s+q,0);
+  const total=getCartItems().reduce((s,i)=>s+i.price*i.qty,0);
+  const btn=document.getElementById('cartBtn');
+  if(qty>0){
+    btn.classList.remove('hidden');
+    document.getElementById('cartCount').textContent=qty+' món';
+    document.getElementById('cartTotalBar').textContent=total.toLocaleString('vi-VN')+'đ';
+  } else btn.classList.add('hidden');
+}
+
+function getCartItems(){
+  return Object.entries(cart).map(([id,qty])=>({...menu.items.find(i=>i.id==id),qty}));
+}
+
+function openCart(){
+  const items=getCartItems();
+  const total=items.reduce((s,i)=>s+i.price*i.qty,0);
+  document.getElementById('cartItems').innerHTML=items.map(item=>{
+    const emoji=CAT_EMOJI[item.category]||'🍱';
+    return `<div class="cart-item">
+      <div class="ci-thumb">${item.image?`<img src="${item.image}">`:`${emoji}`}</div>
+      <div class="ci-info"><div class="ci-name">${item.name}</div><div class="ci-price">${item.price.toLocaleString('vi-VN')}đ/phần</div></div>
+      <div class="ci-ctrl">
+        <button class="qty-btn minus" onclick="changeQtyCart(${item.id},-1)">−</button>
+        <span class="qty-num">${item.qty}</span>
+        <button class="qty-btn plus" onclick="changeQtyCart(${item.id},1)">+</button>
+      </div>
+      <div class="ci-total">${(item.price*item.qty).toLocaleString('vi-VN')}đ</div>
+    </div>`;
+  }).join('');
+  document.getElementById('cartTotal').textContent=total.toLocaleString('vi-VN')+'đ';
+  showModal('cartModal');
+}
+
+function changeQtyCart(id,delta){
+  changeQty(id,delta);
+  if(!Object.keys(cart).length){closeModals();return;}
+  openCart();
+}
+
+// HISTORY
+function openHistory(){
+  renderHistory();
+  showModal('historyModal');
+}
+
+function renderHistory(){
+  const body=document.getElementById('historyBody');
+  if(!sessionHistory.length){
+    body.innerHTML='<div class="hm-empty">Bạn chưa đặt món nào trong lần này.<br>Hãy chọn những món ngon nhé! 🍣</div>';
+    return;
+  }
+  let grandTotal=0;
+  body.innerHTML=sessionHistory.map((order,idx)=>{
+    const orderTotal=order.items.reduce((s,i)=>s+i.price*i.qty,0);
+    grandTotal+=orderTotal;
+    const timeStr=new Date(order.createdAt).toLocaleTimeString('vi-VN',{hour:'2-digit',minute:'2-digit'});
+    const itemsHTML=order.items.map(item=>{
+      const emoji=CAT_EMOJI[item.category]||'🍱';
+      return `<div class="hm-item">
+        <div class="hm-item-left">
+          <div class="hm-thumb">${item.image?`<img src="${item.image}">`:`${emoji}`}</div>
+          <div><div class="hm-name">${item.name}</div><div class="hm-qty">× ${item.qty}</div></div>
+        </div>
+        <div class="hm-price">${(item.price*item.qty).toLocaleString('vi-VN')}đ</div>
+      </div>`;
+    }).join('');
+    return `<div class="hm-order-group">
+      <div class="hm-group-time">Đơn #${idx+1} — ${timeStr}</div>
+      ${itemsHTML}
+      <div style="text-align:right;font-size:13px;color:#aaa;padding-top:6px;">Tổng đơn: <strong style="color:var(--blush)">${orderTotal.toLocaleString('vi-VN')}đ</strong></div>
+    </div>`;
+  }).join('');
+  body.innerHTML+=`<div class="hm-total-row"><span>Tổng cộng hôm nay</span><span style="color:var(--blush)">${grandTotal.toLocaleString('vi-VN')}đ</span></div>`;
+}
+
+function updateHistoryBadge(){
+  const badge=document.getElementById('historyBadge');
+  const count=sessionHistory.reduce((s,o)=>s+o.items.reduce((ss,i)=>ss+i.qty,0),0);
+  if(count>0){badge.style.display='inline';badge.textContent=count;}
+  else badge.style.display='none';
+}
+
+function goToHistory(){
+  document.getElementById('successScreen').classList.remove('show');
+  stopPetals();
+  renderHistory();
+  showModal('historyModal');
+}
+
+function showModal(id){
+  document.getElementById('overlay').classList.add('show');
+  document.getElementById(id).classList.add('show');
+  document.getElementById('overlay').onclick=closeModals;
+}
+
+function closeModals(){
+  document.getElementById('overlay').classList.remove('show');
+  document.querySelectorAll('.cart-modal,.history-modal').forEach(m=>m.classList.remove('show'));
+}
+
+// PETALS
+let petalInterval=null;
+const PETAL_CHARS=['🌸','🌺','✨','🎋','🍃','🌼','💮'];
+function startPetals(){
+  const container=document.getElementById('petals');
+  container.innerHTML='';
+  petalInterval=setInterval(()=>{
+    const p=document.createElement('div');
+    p.className='petal';
+    p.textContent=PETAL_CHARS[Math.floor(Math.random()*PETAL_CHARS.length)];
+    p.style.left=Math.random()*100+'vw';
+    p.style.fontSize=(14+Math.random()*16)+'px';
+    p.style.animationDuration=(3+Math.random()*4)+'s';
+    p.style.animationDelay=(Math.random()*2)+'s';
+    container.appendChild(p);
+    setTimeout(()=>p.remove(),8000);
+  },300);
+}
+function stopPetals(){
+  if(petalInterval){clearInterval(petalInterval);petalInterval=null;}
+  document.getElementById('petals').innerHTML='';
+}
+
+async function submitOrder(){
+  const items=getCartItems();
+  if(!items.length) return;
+  const btn=document.getElementById('btnOrder');
+  btn.disabled=true;
+  btn.textContent='送信中... Đang gửi';
+  const note=document.getElementById('noteInput').value;
+  try{
+    const res=await fetch('/api/order',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({table:tableNum,items,note})});
+    const data=await res.json();
+    if(data.success){
+      // Save to session history
+      const orderRecord={id:data.orderId,createdAt:new Date().toISOString(),items,note};
+      sessionHistory.push(orderRecord);
+      updateHistoryBadge();
+
+      closeModals();
+      // Random thank you message
+      const [msg,sub]=THANK_YOU_MSGS[Math.floor(Math.random()*THANK_YOU_MSGS.length)];
+      document.getElementById('successMsg').innerHTML=msg;
+      document.getElementById('successSub').innerHTML=sub;
+      document.getElementById('successTable').textContent=`📍 Bàn ${tableNum}`;
+      document.getElementById('successScreen').classList.add('show');
+      startPetals();
+      cart={};
+      updateCartBar();
+    }
+  }catch(e){alert('Có lỗi xảy ra. Vui lòng thử lại!');}
+  finally{btn.disabled=false;btn.textContent='ご注文 · Đặt Món Ngay';}
+}
+
+function resetOrder(){
+  document.getElementById('successScreen').classList.remove('show');
+  stopPetals();
+  document.getElementById('noteInput').value='';
+  renderMenu();
+}
+
+loadMenu();
+</script>
+</body>
+</html>

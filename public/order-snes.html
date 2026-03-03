@@ -1,0 +1,605 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>SUSHI AKASHI ★ RPG QUEST</title>
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+  <style>
+:root{
+  --black:#080510;--bg:#1a1060;--bg2:#120c48;--panel:#0c0838;--panel2:#160c55;
+  --border:#5030c0;--border2:#7850e8;--border3:#9870ff;
+  --gold:#ffcc00;--gold2:#ff9900;--red:#ff3030;--green:#20e860;
+  --cyan:#00ddff;--pink:#ff50b8;--text:#e0d8ff;--text2:#a090d0;--dim:#503870;
+}
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+body{font-family:'Press Start 2P',monospace;background:var(--black);color:var(--text);min-height:100vh;padding-bottom:110px;overflow-x:hidden;}
+body::after{content:'';position:fixed;inset:0;background:repeating-linear-gradient(0deg,transparent,transparent 3px,rgba(0,0,0,.13) 3px,rgba(0,0,0,.13) 4px);pointer-events:none;z-index:9999;}
+.stars{position:fixed;inset:0;z-index:0;pointer-events:none;}
+.star{position:absolute;background:#fff;animation:twinkle linear infinite;}
+@keyframes twinkle{0%,100%{opacity:0;}50%{opacity:1;}}
+@keyframes blink{0%,49%{opacity:1;}50%,100%{opacity:0;}}
+@keyframes bounce{0%,100%{transform:translateY(0);}50%{transform:translateY(-3px);}}
+
+/* ── HEADER ── */
+.header{background:linear-gradient(180deg,#060320,var(--bg) 70%,#2a1878);border-bottom:4px solid var(--border);box-shadow:0 4px 0 var(--border2),0 8px 0 #000;position:sticky;top:0;z-index:100;}
+.hdr-top{display:flex;align-items:center;justify-content:space-between;padding:10px 12px;gap:8px;}
+.logo-area{display:flex;align-items:center;gap:8px;}
+.logo-img{width:44px;height:44px;object-fit:contain;border:2px solid var(--gold);box-shadow:0 0 8px var(--gold2);flex-shrink:0;}
+.logo-name{font-size:9px;color:var(--gold);text-shadow:2px 2px 0 #800,0 0 10px var(--gold2);}
+.logo-sub{font-size:7px;color:var(--cyan);letter-spacing:2px;margin-top:3px;}
+.hdr-right{display:flex;flex-direction:column;align-items:flex-end;gap:6px;}
+.table-chip{background:var(--panel);border:2px solid var(--gold);padding:5px 10px;font-size:8px;color:var(--gold);}
+.hist-btn{background:var(--panel2);border:2px solid var(--border2);padding:5px 10px;font-size:8px;color:var(--cyan);font-family:inherit;cursor:pointer;height:34px;display:flex;align-items:center;gap:5px;}
+.hist-badge{background:var(--gold);color:var(--black);font-size:8px;padding:1px 5px;display:none;}
+.order-bar{display:flex;align-items:center;gap:8px;padding:7px 12px;background:var(--black);border-top:2px solid var(--border);}
+.ob-lbl{font-size:8px;color:var(--gold2);flex-shrink:0;}
+.hp-track{flex:1;height:12px;background:#1a0a0a;border:2px solid #600;overflow:hidden;}
+.hp-fill{height:100%;background:linear-gradient(90deg,#00c040,#80ff90);transition:width .3s steps(5);}
+.ob-info{font-size:7px;color:var(--green);flex-shrink:0;}
+
+/* ── TABS ── */
+.cat-wrap{background:var(--bg2);border-bottom:3px solid var(--border);position:sticky;top:119px;z-index:90;}
+.cat-scroll{display:flex;overflow-x:auto;scrollbar-width:none;}
+.cat-scroll::-webkit-scrollbar{display:none;}
+.cat-btn{flex-shrink:0;min-height:44px;padding:0 12px;border:none;border-right:2px solid var(--border);background:var(--bg2);font-family:inherit;font-size:7px;color:var(--text2);cursor:pointer;white-space:nowrap;display:flex;align-items:center;gap:4px;}
+.cat-btn.active{background:var(--panel);color:var(--gold);border-bottom:3px solid var(--gold);}
+.sec-title{background:linear-gradient(90deg,var(--border),var(--panel2));margin:10px 10px 6px;padding:8px 12px;font-size:8px;color:var(--gold);border-left:4px solid var(--gold);letter-spacing:2px;}
+
+/* ── GRID ── */
+.menu-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;padding:0 10px 8px;}
+@media(max-width:360px){.menu-grid{grid-template-columns:1fr;}}
+
+/* ── CARD ── */
+.menu-item{background:var(--panel);border:2px solid var(--border);box-shadow:3px 3px 0 #000;position:relative;overflow:hidden;transition:all .1s;}
+.menu-item.in-cart{border-color:var(--gold);box-shadow:3px 3px 0 #000,0 0 10px var(--gold2);}
+.item-img{height:90px;overflow:hidden;background:var(--black);position:relative;cursor:pointer;}
+.item-img img{width:100%;height:100%;object-fit:cover;filter:saturate(1.3);}
+.item-img::after{content:'';position:absolute;inset:0;background:repeating-linear-gradient(0deg,transparent,transparent 4px,rgba(0,0,0,.1) 4px,rgba(0,0,0,.1) 5px);pointer-events:none;}
+.emoji-bg{width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:42px;background:radial-gradient(ellipse,var(--panel2),var(--black));}
+.badges{position:absolute;top:4px;left:4px;display:flex;flex-direction:column;gap:2px;z-index:2;}
+.badge{font-size:7px;padding:2px 5px;border:1px solid currentColor;font-family:inherit;}
+.badge-hot{color:#ff4040;background:rgba(255,40,40,.2);animation:blink .5s steps(1) infinite;}
+.badge-chef{color:var(--gold);background:rgba(255,200,0,.15);}
+.badge-signature{color:var(--cyan);background:rgba(0,220,255,.1);}
+.badge-bestseller{color:var(--green);background:rgba(32,232,96,.1);}
+.sold-out{position:absolute;inset:0;background:rgba(0,0,0,.75);display:flex;align-items:center;justify-content:center;z-index:3;}
+.sold-out span{font-size:8px;color:var(--red);border:2px solid var(--red);padding:4px 8px;animation:blink .8s steps(1) infinite;}
+.qty-bub{position:absolute;top:5px;right:5px;z-index:4;background:var(--black);border:2px solid var(--gold);padding:2px 6px;font-size:9px;color:var(--gold);display:none;}
+.qty-bub.show{display:block;}
+.item-body{padding:7px 9px 4px;cursor:pointer;}
+.item-name{font-size:8px;line-height:1.5;color:var(--text);margin-bottom:1px;}
+.item-jp{font-size:9px;color:var(--dim);margin-bottom:3px;font-family:sans-serif;}
+.item-desc{font-size:7px;color:var(--dim);line-height:1.6;margin-bottom:4px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;}
+.pcs-badge{font-size:7px;color:var(--cyan);border:1px solid var(--cyan);padding:2px 5px;display:inline-flex;align-items:center;gap:3px;margin-bottom:3px;cursor:pointer;}
+.item-foot-wrap{padding:0 9px 9px;}
+.item-foot{display:flex;align-items:center;justify-content:space-between;gap:4px;}
+.item-price{font-size:9px;color:var(--gold2);}
+.qty-ctrl{display:flex;align-items:center;gap:4px;}
+.qty-btn{width:34px;height:34px;border:2px solid;background:var(--panel2);font-family:inherit;font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:2px 2px 0 #000;transition:all .1s;}
+.qty-btn:active{transform:translate(1px,1px);box-shadow:1px 1px 0 #000;}
+.qty-btn.plus{border-color:var(--green);color:var(--green);}
+.qty-btn.minus{border-color:var(--red);color:var(--red);}
+.qty-num{font-size:12px;min-width:16px;text-align:center;color:var(--gold);}
+.btn-choose{height:34px;padding:0 8px;border:2px solid var(--cyan);background:var(--panel2);color:var(--cyan);font-family:inherit;font-size:7px;cursor:pointer;box-shadow:2px 2px 0 #000;}
+.btn-choose:active{transform:translate(1px,1px);box-shadow:0 0 0;}
+
+/* ── CART BAR ── */
+.cart-bar{position:fixed;bottom:0;left:0;right:0;z-index:200;background:var(--black);border-top:4px solid var(--border);box-shadow:0 -4px 0 var(--border2);padding:10px 12px 14px;}
+.cart-btn{background:linear-gradient(180deg,#301858,#180c38);border:3px solid var(--gold);box-shadow:3px 3px 0 #000,0 0 16px rgba(255,204,0,.3);padding:0 14px;height:52px;display:flex;align-items:center;justify-content:space-between;cursor:pointer;}
+.cart-btn.hidden{display:none;}
+.cart-btn:active{transform:translate(2px,2px);box-shadow:0 0 0;}
+.cb-l{display:flex;align-items:center;gap:8px;}
+.cb-icon{font-size:18px;animation:bounce 1s ease-in-out infinite;}
+.cb-txt{font-size:9px;color:var(--gold);}
+.cb-sub{font-size:7px;color:var(--text2);margin-top:2px;}
+.cb-badge{background:var(--red);color:white;font-size:8px;padding:2px 7px;border:1px solid #f66;}
+.cb-total{font-size:10px;color:var(--green);}
+
+/* ── OVERLAY + SHEETS ── */
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,.88);z-index:300;display:none;}
+.overlay.show{display:block;}
+.rpg-sheet{position:fixed;bottom:0;left:0;right:0;z-index:400;background:var(--panel);border-top:4px solid var(--border2);border-left:4px solid var(--border2);border-right:4px solid var(--border2);box-shadow:0 -6px 0 var(--border);max-height:88vh;display:flex;flex-direction:column;transform:translateY(100%);transition:transform .2s steps(6);}
+.rpg-sheet.show{transform:translateY(0);}
+.sheet-drag{width:36px;height:4px;background:var(--dim);border-radius:2px;margin:10px auto 0;flex-shrink:0;}
+.sheet-hdr{background:linear-gradient(90deg,var(--border),var(--panel2));padding:11px 14px;font-size:10px;color:var(--gold);letter-spacing:2px;border-bottom:2px solid var(--border2);display:flex;justify-content:space-between;align-items:center;flex-shrink:0;}
+.sheet-close{background:var(--red);border:2px solid #f66;color:white;font-family:inherit;font-size:9px;padding:5px 10px;cursor:pointer;height:36px;display:flex;align-items:center;}
+.sheet-body{overflow-y:auto;flex:1;padding:8px 12px;}
+.cart-item{display:flex;align-items:center;gap:8px;padding:9px 0;border-bottom:1px solid var(--dim);}
+.ci-thumb{width:44px;height:44px;flex-shrink:0;border:2px solid var(--border);overflow:hidden;background:var(--black);display:flex;align-items:center;justify-content:center;font-size:20px;}
+.ci-thumb img{width:100%;height:100%;object-fit:cover;}
+.ci-info{flex:1;}
+.ci-name{font-size:7px;color:var(--text);margin-bottom:2px;}
+.ci-pcs{font-size:7px;color:var(--cyan);margin-bottom:1px;}
+.ci-cost{font-size:7px;color:var(--text2);}
+.ci-ctrl{display:flex;align-items:center;gap:3px;flex-shrink:0;}
+.ci-total{font-size:9px;color:var(--green);min-width:60px;text-align:right;flex-shrink:0;}
+.note-sect{padding:8px 12px;border-top:2px solid var(--border);flex-shrink:0;}
+.note-lbl{font-size:7px;color:var(--cyan);margin-bottom:4px;display:block;}
+.note-inp{width:100%;background:var(--black);border:2px solid var(--border);color:var(--text);font-family:inherit;font-size:8px;padding:8px;resize:none;outline:none;min-height:52px;}
+.note-inp:focus{border-color:var(--cyan);}
+.sheet-foot{padding:8px 12px 14px;border-top:2px solid var(--border);background:var(--black);flex-shrink:0;}
+.tot-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;}
+.tot-lbl{font-size:9px;color:var(--text2);}
+.tot-val{font-size:12px;color:var(--gold);}
+.btn-order{width:100%;height:52px;background:linear-gradient(180deg,#306030,#183018);border:3px solid var(--green);box-shadow:3px 3px 0 #000;color:white;font-family:inherit;font-size:8px;cursor:pointer;letter-spacing:1px;display:flex;align-items:center;justify-content:center;}
+.btn-order:active{transform:translate(2px,2px);box-shadow:0 0 0;}
+.btn-order:disabled{background:var(--panel2);border-color:var(--dim);color:var(--dim);cursor:not-allowed;}
+/* history */
+.hm-grp-lbl{font-size:7px;color:var(--border3);margin:8px 0 3px;letter-spacing:2px;}
+.hm-row{display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid var(--dim);font-size:7px;}
+.hm-pcs{font-size:7px;color:var(--cyan);}
+.hm-price{color:var(--green);}
+.hm-grand{display:flex;justify-content:space-between;padding:8px 0 0;font-size:10px;color:var(--gold);border-top:2px solid var(--border2);margin-top:8px;}
+.hm-empty{font-size:8px;color:var(--dim);padding:34px 20px;text-align:center;line-height:2.5;}
+
+/* ── ITEM POPUP (PCS + detail) ── */
+.popup-overlay{position:fixed;inset:0;z-index:600;background:rgba(0,0,0,.92);display:none;align-items:flex-end;justify-content:center;}
+.popup-overlay.show{display:flex;}
+.popup-box{background:var(--panel);border:3px solid var(--border2);border-bottom:none;box-shadow:0 -6px 0 var(--border),0 0 28px rgba(96,64,208,.5);width:100%;max-width:440px;max-height:88vh;display:flex;flex-direction:column;animation:slideUp .2s steps(6);}
+@keyframes slideUp{from{transform:translateY(100%);}to{transform:translateY(0);}}
+.popup-drag{width:36px;height:4px;background:var(--dim);border-radius:2px;margin:10px auto 0;flex-shrink:0;}
+.popup-img{height:170px;overflow:hidden;background:var(--black);position:relative;border-bottom:3px solid var(--border2);flex-shrink:0;}
+.popup-img img{width:100%;height:100%;object-fit:cover;filter:saturate(1.3);}
+.popup-img::after{content:'';position:absolute;inset:0;background:repeating-linear-gradient(0deg,transparent,transparent 4px,rgba(0,0,0,.1) 4px,rgba(0,0,0,.1) 5px);pointer-events:none;}
+.popup-emoji{width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:60px;background:radial-gradient(ellipse,var(--panel2),var(--black));}
+.popup-close{position:absolute;top:8px;right:8px;z-index:10;background:rgba(255,48,48,.8);border:2px solid #f66;color:white;font-family:inherit;font-size:9px;padding:4px 8px;cursor:pointer;}
+.popup-close:active{opacity:.7;}
+.popup-scroll{overflow-y:auto;flex:1;}
+.popup-info{padding:12px 14px 8px;}
+.popup-name{font-size:11px;color:var(--gold);text-shadow:0 0 6px var(--gold2);margin-bottom:3px;}
+.popup-jp{font-family:sans-serif;font-size:11px;color:var(--dim);margin-bottom:8px;letter-spacing:1px;}
+.popup-desc-lbl{font-size:7px;color:var(--border3);letter-spacing:2px;margin-bottom:4px;}
+.popup-desc{font-size:8px;color:var(--text2);line-height:1.8;background:var(--panel2);padding:8px 10px;border:1px solid var(--border);}
+/* PCS section */
+.pcs-section{padding:12px 14px 0;}
+.pcs-lbl{font-size:8px;color:var(--cyan);letter-spacing:2px;margin-bottom:8px;}
+.pcs-opts{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:4px;}
+.pcs-opt{flex:1;min-width:70px;padding:9px 6px;border:2px solid var(--border);background:var(--panel2);cursor:pointer;text-align:center;transition:all .1s;box-shadow:2px 2px 0 #000;}
+.pcs-opt:active{transform:translate(1px,1px);box-shadow:0 0 0;}
+.pcs-opt.selected{border-color:var(--gold);background:var(--bg);box-shadow:2px 2px 0 #000,0 0 8px var(--gold2);}
+.pcs-opt-qty{font-size:14px;font-weight:900;color:var(--text);font-family:inherit;}
+.pcs-opt-lbl{font-size:7px;color:var(--dim);margin:2px 0;}
+.pcs-opt-price{font-size:9px;color:var(--gold2);}
+/* popup footer */
+.popup-foot{padding:10px 14px 14px;border-top:2px solid var(--border2);background:var(--black);display:flex;align-items:center;justify-content:space-between;gap:8px;flex-shrink:0;}
+.popup-price-big{font-size:13px;color:var(--gold);}
+.popup-price-sub{font-size:7px;color:var(--text2);margin-top:2px;}
+.popup-ctrl{display:flex;align-items:center;gap:5px;flex-shrink:0;}
+.popup-qty-num{font-size:14px;min-width:20px;text-align:center;color:var(--gold);}
+.popup-add-btn{height:44px;padding:0 12px;background:linear-gradient(180deg,#183060,#0c1830);border:2px solid var(--cyan);box-shadow:2px 2px 0 #000,0 0 8px rgba(0,221,255,.3);color:var(--cyan);font-family:inherit;font-size:8px;cursor:pointer;flex-shrink:0;}
+.popup-add-btn:active{transform:translate(1px,1px);box-shadow:0 0 0;}
+.popup-add-btn:disabled{border-color:var(--dim);color:var(--dim);background:var(--panel);cursor:not-allowed;box-shadow:none;}
+
+/* ── SUCCESS ── */
+.success{position:fixed;inset:0;z-index:700;background:var(--black);display:none;flex-direction:column;align-items:center;justify-content:center;padding:20px;text-align:center;}
+.success.show{display:flex;}
+.pixel-burst{position:absolute;inset:0;pointer-events:none;overflow:hidden;}
+.pixel-p{position:absolute;width:7px;height:7px;animation:pixFly linear forwards;}
+@keyframes pixFly{0%{transform:translate(0,0) rotate(0);opacity:1;}100%{transform:translate(var(--dx),var(--dy)) rotate(720deg);opacity:0;}}
+.dialog-win{background:var(--panel);border:4px solid var(--border2);box-shadow:6px 6px 0 #000,0 0 28px rgba(96,64,208,.5);padding:18px 20px;max-width:340px;width:100%;margin-bottom:18px;position:relative;}
+.v-title{font-size:11px;color:var(--gold);text-shadow:3px 3px 0 #800,0 0 16px var(--gold2);margin-bottom:12px;letter-spacing:2px;}
+.v-msg{font-size:8px;color:var(--text);line-height:2.5;margin-bottom:10px;}
+.v-table{font-size:8px;color:var(--cyan);animation:blink 1s steps(1) infinite;}
+.exp-wrap{margin:10px 0;}
+.exp-lbl{font-size:7px;color:var(--text2);margin-bottom:4px;text-align:left;}
+.exp-bar{height:10px;background:var(--black);border:2px solid var(--border);overflow:hidden;}
+.exp-fill{height:100%;width:0;background:linear-gradient(90deg,#0060ff,#00c0ff);animation:expGrow 1.2s steps(16) forwards .4s;}
+@keyframes expGrow{to{width:100%;}}
+.s-btns{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;margin-top:6px;}
+.s-btn{height:50px;padding:0 20px;border:3px solid;font-family:inherit;font-size:9px;cursor:pointer;letter-spacing:1px;display:flex;align-items:center;justify-content:center;box-shadow:3px 3px 0 #000;}
+.s-btn:active{transform:translate(2px,2px);box-shadow:0 0 0;}
+.s-btn.pri{background:linear-gradient(180deg,#1a3888,#0a1848);border-color:var(--cyan);color:var(--cyan);}
+.s-btn.sec{background:var(--panel2);border-color:var(--border2);color:var(--text2);}
+  </style>
+</head>
+<body>
+<div class="stars" id="stars"></div>
+
+<div class="header">
+  <div class="hdr-top">
+    <div class="logo-area">
+      <img src="/logo.png" class="logo-img" alt="logo">
+      <div><div class="logo-name">SUSHI AKASHI</div><div class="logo-sub">鮨灯 QUEST ★</div></div>
+    </div>
+    <div class="hdr-right">
+      <div class="table-chip" id="tableChip">--</div>
+      <button class="hist-btn" onclick="openHist()">📜 <span id="lbHist">Đã đặt</span><span class="hist-badge" id="histBadge"></span></button>
+    </div>
+  </div>
+  <div class="order-bar">
+    <div class="ob-lbl" id="lbOrderLbl">ĐƠN</div>
+    <div class="hp-track"><div class="hp-fill" id="hpFill" style="width:0%"></div></div>
+    <div class="ob-info" id="obInfo">0</div>
+  </div>
+</div>
+
+<div class="cat-wrap"><div class="cat-scroll" id="catScroll"></div></div>
+<div id="menuContainer"></div>
+
+<div class="cart-bar">
+  <div class="cart-btn hidden" id="cartBtn" onclick="openCart()">
+    <div class="cb-l">
+      <div class="cb-icon">⚔️</div>
+      <div><div class="cb-txt" id="lbCartBtn">[ GIỎ HÀNG ]</div><div class="cb-sub" id="lbCartSub">Nhấn để đặt</div></div>
+      <div class="cb-badge" id="cbBadge">0</div>
+    </div>
+    <div class="cb-total" id="cbTotal">0đ</div>
+  </div>
+</div>
+
+<div class="overlay" id="overlay"></div>
+
+<!-- CART -->
+<div class="rpg-sheet" id="cartSheet">
+  <div class="sheet-drag"></div>
+  <div class="sheet-hdr"><span id="lbCartTitle">★ GIỎ HÀNG ★</span><button class="sheet-close" onclick="closeAll()" id="lbClose">✕ ĐÓNG</button></div>
+  <div class="sheet-body" id="cartBody"></div>
+  <div class="note-sect"><label class="note-lbl" id="lbNote">■ GHI CHÚ:</label><textarea class="note-inp" id="noteInput"></textarea></div>
+  <div class="sheet-foot">
+    <div class="tot-row"><span class="tot-lbl" id="lbTotal">TỔNG:</span><span class="tot-val" id="cartTot">0đ</span></div>
+    <button class="btn-order" id="btnOrder" onclick="submitOrder()">▶ XÁC NHẬN ĐẶT MÓN ◀</button>
+  </div>
+</div>
+
+<!-- HISTORY -->
+<div class="rpg-sheet" id="histSheet">
+  <div class="sheet-drag"></div>
+  <div class="sheet-hdr"><span id="lbHistTitle">★ LỊCH SỬ ★</span><button class="sheet-close" onclick="closeAll()">✕</button></div>
+  <div class="sheet-body" id="histBody"></div>
+</div>
+
+<!-- ITEM DETAIL / PCS POPUP -->
+<div class="popup-overlay" id="popupOverlay" onclick="closePopupBg(event)">
+  <div class="popup-box">
+    <div class="popup-drag"></div>
+    <div class="popup-img" id="popupImg">
+      <button class="popup-close" onclick="closePopup()">✕ ESC</button>
+    </div>
+    <div class="popup-scroll">
+      <div class="popup-info">
+        <div class="popup-name" id="popupName"></div>
+        <div class="popup-jp"   id="popupJp"></div>
+        <div class="popup-desc-lbl" id="lbDescLbl">■ THÀNH PHẦN:</div>
+        <div class="popup-desc" id="popupDesc"></div>
+      </div>
+      <div class="pcs-section" id="pcsSection" style="display:none">
+        <div class="pcs-lbl" id="lbPcsTitle">⚖ CHỌN SỐ MIẾNG:</div>
+        <div class="pcs-opts" id="pcsOpts"></div>
+      </div>
+    </div>
+    <div class="popup-foot">
+      <div>
+        <div class="popup-price-big" id="popupPrice">0đ</div>
+        <div class="popup-price-sub" id="popupPriceSub"></div>
+      </div>
+      <div class="popup-ctrl">
+        <button class="qty-btn minus" onclick="popupCq(-1)">−</button>
+        <div class="popup-qty-num" id="popupQtyNum">1</div>
+        <button class="qty-btn plus" onclick="popupCq(1)">+</button>
+      </div>
+      <button class="popup-add-btn" id="popupAddBtn" onclick="popupAddToCart()"><span id="lbAddBtn">▶ THÊM VÀO GIỎ</span></button>
+    </div>
+  </div>
+</div>
+
+<!-- SUCCESS -->
+<div class="success" id="successScr">
+  <div class="pixel-burst" id="pixBurst"></div>
+  <div class="dialog-win">
+    <div class="v-title" id="vTitle">★ ĐẶT MÓN THÀNH CÔNG! ★</div>
+    <div class="v-msg"   id="vMsg"></div>
+    <div class="exp-wrap"><div class="exp-lbl" id="lbExp">EXP +++</div><div class="exp-bar"><div class="exp-fill"></div></div></div>
+    <div class="v-table" id="vTable"></div>
+  </div>
+  <div class="s-btns">
+    <button class="s-btn sec" onclick="goHist()" id="lbSHist">📜 ĐÃ ĐẶT</button>
+    <button class="s-btn pri" onclick="resetOk()" id="lbSMore">▶ GỌI THÊM</button>
+  </div>
+</div>
+
+<script>
+(()=>{ const c=document.getElementById('stars'); for(let i=0;i<70;i++){const s=document.createElement('div');s.className='star';const z=Math.random()<.25?2:1;s.style.cssText=`width:${z}px;height:${z}px;left:${Math.random()*100}vw;top:${Math.random()*100}vh;animation-duration:${2+Math.random()*5}s;animation-delay:${Math.random()*5}s;`;c.appendChild(s);} })();
+
+const P=new URLSearchParams(location.search);
+const LANG=P.get('lang')||'vi';
+const TBL=P.get('table')||'?';
+
+const T = LANG==='en' ? {
+  tableLabel: t=>`TABLE: ${t}`, hist:'History', orderLbl:'ORDER',
+  all:'🍱 ALL', cartBtn:'[ MY CART ]', cartSub:'Tap to order',
+  cartTitle:'★ MY CART ★', close:'✕ CLOSE',
+  noteLabel:'■ NOTE TO CHEF:', notePH:'No spicy, less wasabi...',
+  totalLabel:'TOTAL:', confirmBtn:'▶ CONFIRM ORDER ◀', sendingBtn:'▶ SENDING... ◀',
+  histTitle:'★ ORDER LOG ★', histEmpty:'NO ORDERS YET.',
+  histOrder:n=>`► ORDER #${n}`, histGrand:'TOTAL SPENT:',
+  descLbl:'■ INGREDIENTS:', ingDef:'Freshly prepared every day.',
+  pcsTitle:'⚖ CHOOSE QUANTITY (PCS):',
+  addBtn:'▶ ADD TO CART', addBtnSel:'▶ SELECT PCS FIRST',
+  pcsBadge: n=>`⚖ ${n} SIZE OPTIONS`,
+  fromLabel:'from ', chooseLabel:'Choose →',
+  exp:'SATISFACTION EXP +++', each:'/pc',
+  soldOut:'SOLD OUT', chooseWord:'CHOOSE',
+  victories:[['★ ORDER CONFIRMED! ★','Order sent to kitchen!\nChef received it!'],['✦ GREAT COMBO! ✦','Excellent selection!\nChef is very pleased!'],['★ LEVEL UP! ★','Processing order...\nDelicious food incoming!']],
+  sHist:'📜 HISTORY', sMore:'▶ ORDER MORE', vTable:t=>`[ TABLE ${t} ]`,
+  badges:{hot:'HOT🔥',chef:"CHEF'S",signature:'SPECIAL✨',bestseller:'BEST🏆'}
+} : {
+  tableLabel: t=>`BÀN: ${t}`, hist:'Đã đặt', orderLbl:'ĐƠN',
+  all:'🍱 TẤT CẢ', cartBtn:'[ GIỎ HÀNG ]', cartSub:'Nhấn để đặt',
+  cartTitle:'★ GIỎ HÀNG ★', close:'✕ ĐÓNG',
+  noteLabel:'■ GHI CHÚ CHO BẾP:', notePH:'Không cay, ít wasabi...',
+  totalLabel:'TỔNG CỘNG:', confirmBtn:'▶ XÁC NHẬN ĐẶT MÓN ◀', sendingBtn:'▶ ĐANG GỬI... ◀',
+  histTitle:'★ LỊCH SỬ ★', histEmpty:'CHƯA CÓ ĐƠN NÀO.',
+  histOrder:n=>`► ĐƠN #${n}`, histGrand:'TỔNG ĐÃ CHI:',
+  descLbl:'■ THÀNH PHẦN:', ingDef:'Món ăn tươi ngon mỗi ngày.',
+  pcsTitle:'⚖ CHỌN SỐ MIẾNG:',
+  addBtn:'▶ THÊM VÀO GIỎ', addBtnSel:'▶ CHỌN MỨC PCS TRƯỚC',
+  pcsBadge: n=>`⚖ ${n} MỨC GIÁ`,
+  fromLabel:'từ ', chooseLabel:'Chọn →',
+  exp:'ĐIỂM TÍCH LUỸ +++', each:'/phần',
+  soldOut:'HẾT MÓN', chooseWord:'CHỌN',
+  victories:[['★ ĐẶT MÓN THÀNH CÔNG! ★','Đơn đã bay vào bếp!\nBếp đã nhận. Xin chờ!'],['✦ COMBO XUẤT SẮC! ✦','Lựa chọn hoàn hảo!\nBếp trưởng hài lòng!'],['★ LÊN CẤP! ★','Đang xử lý đơn...\nMón ngon sắp ra!']],
+  sHist:'📜 ĐÃ ĐẶT', sMore:'▶ GỌI THÊM', vTable:t=>`[ BÀN ${t} ]`,
+  badges:{hot:'NÓNG🔥',chef:'BẾP TRƯỞNG',signature:'ĐẶC SẮC✨',bestseller:'BÁN CHẠY🏆'}
+};
+
+// Apply labels
+document.getElementById('tableChip').textContent = T.tableLabel(TBL);
+document.getElementById('lbHist').textContent     = T.hist;
+document.getElementById('lbOrderLbl').textContent = T.orderLbl;
+document.getElementById('lbCartBtn').textContent  = T.cartBtn;
+document.getElementById('lbCartSub').textContent  = T.cartSub;
+document.getElementById('lbCartTitle').textContent= T.cartTitle;
+document.getElementById('lbClose').textContent    = T.close;
+document.getElementById('lbNote').textContent     = T.noteLabel;
+document.getElementById('noteInput').placeholder  = T.notePH;
+document.getElementById('lbTotal').textContent    = T.totalLabel;
+document.getElementById('btnOrder').textContent   = T.confirmBtn;
+document.getElementById('lbHistTitle').textContent= T.histTitle;
+document.getElementById('lbDescLbl').textContent  = T.descLbl;
+document.getElementById('lbPcsTitle').textContent = T.pcsTitle;
+document.getElementById('lbAddBtn').textContent   = T.addBtn;
+document.getElementById('lbExp').textContent      = T.exp;
+document.getElementById('lbSHist').textContent    = T.sHist;
+document.getElementById('lbSMore').textContent    = T.sMore;
+
+// ── CART ENGINE ─────────────────────────────────────────────
+// key = "itemId__pcs" (pcs=0 = no-pcs item)
+let CART = {}; // { key: { item, pcs, pcsLabel, price, qty } }
+
+// ── Bilingual helpers ────────────────────────────────────────
+const iName = item => (LANG==='en' && item.name_en) ? item.name_en : item.name;
+const iDesc = item => (LANG==='en' && item.description_en) ? item.description_en : (item.description || '');
+
+let menu = null, hist = [], popupItem = null, popupSelPcs = null, popupQty = 1;
+
+const EC = {sashimi:'🐟',nigiri:'🍣',maki:'🌀',soup:'🍜',drink:'🍵'};
+const cKey = (id, pcs) => `${id}__${pcs}`;
+const cQty  = (id, pcs) => CART[cKey(id,pcs)]?.qty || 0;
+const cTotalItem = id  => Object.values(CART).filter(e=>e.item.id==id).reduce((s,e)=>s+e.qty,0);
+const cCount  = ()     => Object.values(CART).reduce((s,e)=>s+e.qty, 0);
+const cGrand  = ()     => Object.values(CART).reduce((s,e)=>s+(e.price*e.qty), 0);
+const cEntries= ()     => Object.values(CART).filter(e=>e.qty>0);
+
+function cSet(item, pcs, pcsLabel, price, delta) {
+  const k = cKey(item.id, pcs);
+  if (!CART[k]) CART[k] = { item, pcs, pcsLabel, price, qty:0 };
+  CART[k].qty = Math.max(0, CART[k].qty + delta);
+  if (!CART[k].qty) delete CART[k];
+  updateBar(); updateCardQty(item.id);
+}
+function updateCardQty(id) {
+  const total = cTotalItem(id);
+  const qb = document.getElementById(`qb-${id}`);
+  if (qb) { qb.textContent = total ? `×${total}` : ''; qb.className = 'qty-bub'+(total?' show':''); }
+  const mc = document.getElementById(`mc-${id}`);
+  if (mc) mc.className = 'menu-item'+(total?' in-cart':'');
+  // also update simple qty display
+  const qn = document.getElementById(`qn-${id}`);
+  if (qn) qn.textContent = cQty(id, 0) || '0';
+}
+
+async function init() { const r=await fetch('/api/menu'); menu=await r.json(); renderCats(); renderMenu(); }
+
+function renderCats() {
+  const el = document.getElementById('catScroll');
+  el.innerHTML = `<button class="cat-btn active" onclick="fcat(this,'all')">${T.all}</button>`;
+  menu.categories.forEach(c => el.innerHTML += `<button class="cat-btn" onclick="fcat(this,'${c.id}')">${c.icon} ${c.name.toUpperCase()}</button>`);
+}
+function fcat(btn,id) { document.querySelectorAll('.cat-btn').forEach(b=>b.classList.remove('active')); btn.classList.add('active'); renderMenu(id); window.scrollTo({top:160,behavior:'smooth'}); }
+
+function bdg(b) { return b?.length ? `<div class="badges">${b.map(x=>{const lbl=T.badges[x];return lbl?`<span class="badge badge-${x}">${lbl}</span>`:''}).join('')}</div>` : ''; }
+
+function renderMenu(fc='all') {
+  const con = document.getElementById('menuContainer'); con.innerHTML = '';
+  const cats = fc==='all' ? menu.categories : menu.categories.filter(c=>c.id===fc);
+  cats.forEach(cat => {
+    const items = menu.items.filter(i=>i.category===cat.id); if(!items.length) return;
+    const sec = document.createElement('div');
+    sec.innerHTML = `<div class="sec-title">► ${cat.name.toUpperCase()} ◄</div>`;
+    const grid = document.createElement('div'); grid.className = 'menu-grid';
+    items.forEach(item => {
+      const hasPcs = item.pcs_options?.length > 0;
+      const img = item.image ? `<img src="${item.image}" alt="" loading="lazy">` : `<div class="emoji-bg">${EC[item.category]||'🍱'}</div>`;
+      const priceHtml = hasPcs
+        ? `<span style="font-size:7px;color:var(--dim)">${T.fromLabel}</span>${item.price.toLocaleString('vi-VN')}đ`
+        : `${item.price.toLocaleString('vi-VN')}đ`;
+      grid.innerHTML += `
+        <div class="menu-item" id="mc-${item.id}">
+          <div class="item-img" onclick="openPopup(${item.id})">${img}${bdg(item.badges)}${item.available?'':'<div class="sold-out"><span>${T.soldOut}</span></div>'}</div>
+          <div class="qty-bub" id="qb-${item.id}"></div>
+          <div class="item-body" onclick="openPopup(${item.id})">
+            <div class="item-name">${iName(item)}</div>
+            <div class="item-jp">${item.name_jp}</div>
+            ${item.description?`<div class="item-desc">${iDesc(item)}</div>`:''}
+            ${hasPcs?`<div class="pcs-badge">${T.pcsBadge(item.pcs_options.length)}</div>`:''}
+          </div>
+          <div class="item-foot-wrap"><div class="item-foot">
+            <div class="item-price">${priceHtml}</div>
+            ${item.available ? hasPcs
+              ? `<button class="btn-choose" onclick="openPopup(${item.id})">▶ ${T.chooseWord}</button>`
+              : `<div class="qty-ctrl"><button class="qty-btn minus" onclick="simpleCq(${item.id},-1,event)">−</button><div class="qty-num" id="qn-${item.id}">0</div><button class="qty-btn plus" onclick="simpleCq(${item.id},1,event)">+</button></div>`
+              : ''}
+          </div></div>
+        </div>`;
+    });
+    sec.appendChild(grid); con.appendChild(sec);
+  });
+}
+
+function simpleCq(id, d, e) {
+  e?.stopPropagation();
+  const item = menu.items.find(i=>i.id==id); if(!item) return;
+  cSet(item, 0, '', item.price, d);
+}
+
+// ── POPUP ────────────────────────────────────────────────────
+function openPopup(id) {
+  const item = menu.items.find(i=>i.id==id); if(!item) return;
+  popupItem = item; popupSelPcs = null; popupQty = 1;
+  const imgEl = document.getElementById('popupImg');
+  imgEl.innerHTML = (item.image ? `<img src="${item.image}" alt="">` : `<div class="popup-emoji">${EC[item.category]||'🍱'}</div>`)
+    + `<button class="popup-close" onclick="closePopup()">✕ ESC</button>`;
+  document.getElementById('popupName').textContent = iName(item).toUpperCase();
+  document.getElementById('popupJp').textContent   = item.name_jp || '';
+  document.getElementById('popupDesc').textContent = iDesc(item) || T.ingDef;
+
+  const hasPcs = item.pcs_options?.length > 0;
+  document.getElementById('pcsSection').style.display = hasPcs ? 'block' : 'none';
+
+  if (hasPcs) {
+    document.getElementById('pcsOpts').innerHTML = item.pcs_options.map((opt,i) =>
+      `<div class="pcs-opt" id="pcs-${i}" onclick="selPcs(${i})">
+        <div class="pcs-opt-qty">${opt.pcs}</div>
+        <div class="pcs-opt-lbl">${opt.label || (LANG==='en'?opt.pcs+' pcs':opt.pcs+' miếng')}</div>
+        <div class="pcs-opt-price">${opt.price.toLocaleString('vi-VN')}đ</div>
+      </div>`).join('');
+    document.getElementById('popupAddBtn').disabled = true;
+    document.getElementById('lbAddBtn').textContent = T.addBtnSel;
+    document.getElementById('popupPrice').textContent = T.chooseLabel;
+    document.getElementById('popupPriceSub').textContent = '';
+  } else {
+    popupSelPcs = { pcs:0, label:'', price:item.price };
+    document.getElementById('popupAddBtn').disabled = false;
+    document.getElementById('lbAddBtn').textContent = T.addBtn;
+    document.getElementById('popupPrice').textContent = item.price.toLocaleString('vi-VN')+'đ';
+    document.getElementById('popupPriceSub').textContent = T.each;
+  }
+  document.getElementById('popupQtyNum').textContent = popupQty;
+  document.getElementById('popupOverlay').classList.add('show');
+  document.body.style.overflow = 'hidden';
+}
+
+function selPcs(i) {
+  const opt = popupItem.pcs_options[i];
+  popupSelPcs = opt;
+  document.querySelectorAll('.pcs-opt').forEach((el,j)=>el.className='pcs-opt'+(j===i?' selected':''));
+  document.getElementById('popupPrice').textContent = opt.price.toLocaleString('vi-VN')+'đ';
+  document.getElementById('popupPriceSub').textContent = opt.label || (LANG==='en'?opt.pcs+' pcs':opt.pcs+' miếng');
+  document.getElementById('popupAddBtn').disabled = false;
+  document.getElementById('lbAddBtn').textContent = T.addBtn;
+}
+
+function popupCq(d) { popupQty = Math.max(1,popupQty+d); document.getElementById('popupQtyNum').textContent = popupQty; }
+
+function popupAddToCart() {
+  if (!popupItem || !popupSelPcs) return;
+  const lbl = popupSelPcs.label || (LANG==='en'?popupSelPcs.pcs+'pcs':popupSelPcs.pcs+'miếng');
+  cSet(popupItem, popupSelPcs.pcs, lbl, popupSelPcs.price, popupQty);
+  closePopup();
+}
+function closePopup() { document.getElementById('popupOverlay').classList.remove('show'); document.body.style.overflow=''; }
+function closePopupBg(e) { if(e.target===document.getElementById('popupOverlay')) closePopup(); }
+
+// ── SHEETS ─────────────────
+function updateBar() {
+  const cnt=cCount(), tot=cGrand();
+  document.getElementById('hpFill').style.width = Math.min(cnt/15*100,100)+'%';
+  document.getElementById('obInfo').textContent = cnt+' · '+tot.toLocaleString('vi-VN')+'đ';
+  const btn = document.getElementById('cartBtn');
+  if(cnt>0){btn.classList.remove('hidden');document.getElementById('cbBadge').textContent=cnt;document.getElementById('cbTotal').textContent=tot.toLocaleString('vi-VN')+'đ';}
+  else btn.classList.add('hidden');
+}
+
+function openCart() {
+  const entries = cEntries(), tot = cGrand();
+  document.getElementById('cartBody').innerHTML = entries.map(e=>`
+    <div class="cart-item">
+      <div class="ci-thumb">${e.item.image?`<img src="${e.item.image}">`:(EC[e.item.category]||'🍱')}</div>
+      <div class="ci-info">
+        <div class="ci-name">${iName(e.item).toUpperCase()}</div>
+        ${e.pcs?`<div class="ci-pcs">⚖ ${e.pcsLabel}</div>`:''}
+        <div class="ci-cost">${e.price.toLocaleString('vi-VN')}đ${T.each}</div>
+      </div>
+      <div class="ci-ctrl">
+        <button class="qty-btn minus" onclick="cCartAdj('${e.item.id}__${e.pcs}',-1)">−</button>
+        <span class="qty-num">${e.qty}</span>
+        <button class="qty-btn plus" onclick="cCartAdj('${e.item.id}__${e.pcs}',1)">+</button>
+      </div>
+      <div class="ci-total">${(e.price*e.qty).toLocaleString('vi-VN')}đ</div>
+    </div>`).join('');
+  document.getElementById('cartTot').textContent = tot.toLocaleString('vi-VN')+'đ';
+  showSheet('cartSheet');
+}
+function cCartAdj(key, d) {
+  if (!CART[key]) return;
+  CART[key].qty = Math.max(0, CART[key].qty + d);
+  if (!CART[key].qty) delete CART[key];
+  updateBar(); updateCardQty(CART[key]?.item?.id || key.split('__')[0]);
+  if (!cCount()) { closeAll(); return; }
+  openCart();
+}
+
+function openHist() {
+  const body = document.getElementById('histBody');
+  if (!hist.length) { body.innerHTML=`<div class="hm-empty">${T.histEmpty}</div>`; showSheet('histSheet'); return; }
+  let grand=0;
+  body.innerHTML = hist.map((o,i) => {
+    const ot=o.items.reduce((s,x)=>s+x.price*x.qty,0); grand+=ot;
+    const t=new Date(o.createdAt).toLocaleTimeString('vi-VN',{hour:'2-digit',minute:'2-digit'});
+    return `<div class="hm-grp-lbl">${T.histOrder(i+1)} [${t}]</div>
+      ${o.items.map(x=>`<div class="hm-row"><span><span style="color:var(--text)">${((LANG==="en"&&x.name_en)?x.name_en:x.name).toUpperCase()} ×${x.qty}</span>${x.pcs?`<div class="hm-pcs">⚖ ${x.pcsLabel||x.pcs}</div>`:''}</span><span class="hm-price">${(x.price*x.qty).toLocaleString('vi-VN')}đ</span></div>`).join('')}`;
+  }).join('');
+  body.innerHTML += `<div class="hm-grand"><span>${T.histGrand}</span><span>${grand.toLocaleString('vi-VN')}đ</span></div>`;
+  showSheet('histSheet');
+}
+
+function showSheet(id) { document.getElementById('overlay').classList.add('show'); document.getElementById(id).classList.add('show'); document.getElementById('overlay').onclick=closeAll; }
+function closeAll() { document.getElementById('overlay').classList.remove('show'); document.querySelectorAll('.rpg-sheet').forEach(s=>s.classList.remove('show')); }
+
+function spawnPixels() {
+  const b = document.getElementById('pixBurst'); b.innerHTML='';
+  const cols=['#ffcc00','#ff3030','#20e860','#00ddff','#ff50b8','#fff'];
+  for(let i=0;i<40;i++){const p=document.createElement('div');p.className='pixel-p';const a=Math.random()*Math.PI*2,d=80+Math.random()*180;p.style.cssText=`background:${cols[Math.floor(Math.random()*cols.length)]};left:50%;top:40%;--dx:${Math.cos(a)*d}px;--dy:${Math.sin(a)*d}px;animation-duration:${.6+Math.random()*.8}s;animation-delay:${Math.random()*.3}s;`;b.appendChild(p);}
+}
+function updHistBadge() { const b=document.getElementById('histBadge'),c=hist.reduce((s,o)=>s+o.items.reduce((ss,i)=>ss+i.qty,0),0); if(c>0){b.style.display='inline';b.textContent=c;}else b.style.display='none'; }
+
+async function submitOrder() {
+  const entries = cEntries(); if(!entries.length) return;
+  const btn = document.getElementById('btnOrder'); btn.disabled=true; btn.textContent=T.sendingBtn;
+  const note = document.getElementById('noteInput').value;
+  const items = entries.map(e=>({ id:e.item.id, name:e.item.name, name_en:e.item.name_en||"", name_jp:e.item.name_jp||'', price:e.price, qty:e.qty, pcs:e.pcs||0, pcsLabel:e.pcsLabel||'' }));
+  try {
+    const r = await fetch('/api/order',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({table:TBL,items,note})});
+    const d = await r.json();
+    if(d.success) {
+      hist.push({id:d.orderId,createdAt:new Date().toISOString(),items,note});
+      updHistBadge(); closeAll();
+      const [vt,vm] = T.victories[Math.floor(Math.random()*T.victories.length)];
+      document.getElementById('vTitle').textContent = vt;
+      document.getElementById('vMsg').textContent   = vm;
+      document.getElementById('vTable').textContent = T.vTable(TBL);
+      document.getElementById('successScr').classList.add('show');
+      spawnPixels(); CART={}; updateBar(); renderMenu();
+    }
+  } catch(e) { alert(LANG==='en'?'Connection error. Please retry.':'Lỗi kết nối. Vui lòng thử lại!'); }
+  finally { btn.disabled=false; btn.textContent=T.confirmBtn; }
+}
+
+function goHist()  { document.getElementById('successScr').classList.remove('show'); openHist(); }
+function resetOk() { document.getElementById('successScr').classList.remove('show'); document.getElementById('noteInput').value=''; }
+
+init();
+</script>
+</body>
+</html>
