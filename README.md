@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # 🍣 Sushi Order System
 
 Hệ thống đặt món cho nhà hàng Sushi — Khách quét QR → đặt món → in tự động ra máy in nhiệt QP-840W qua WiFi.
@@ -119,3 +120,7 @@ Sau đó thêm vào Task Scheduler để chạy khi Windows khởi động.
 | Không kết nối được máy in | IP sai hoặc khác mạng | Kiểm tra IP, cùng WiFi |
 | Khách không vào được trang | Server chưa chạy hoặc IP sai | Kiểm tra `npm start` đã chạy |
 | Menu không load | Port 3000 bị chặn | Mở firewall port 3000 |
+=======
+# sushi-akashi-server
+Sushi Akashi
+>>>>>>> ad18715bdc22aec9156bda946f87cb56b93247fd

@@ -8,7 +8,7 @@ const multer = require('multer');
 const { createCanvas, registerFont } = require('canvas');
 
 const app = express();
-const PORT = 3000;
+const PORT = process.env.PORT || 3000;
 
 // ============================================================
 const PRINTER_IP   = '192.168.1.222';
